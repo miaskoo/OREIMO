@@ -1,0 +1,190 @@
+#include "AY_DIRS.h"
+
+const string AY_C_DIR = "\\AY_C";
+const string AY_C_YAN_DIR = "\\AY_C_YAN";
+const string AY_L_DIR = "\\AY_L";
+const string AY_L_YAN_DIR = "\\AY_L_YAN";
+const string AY_L_OLD_DIR = "\\AY_L_OLD";
+const string AY_R_DIR = "\\AY_R";
+const string AY_R_YAN_DIR = "\\AY_R_YAN";
+const string AY_R_OLD_DIR = "\\AY_R_OLD";
+
+
+
+//AY
+//C
+// sp 1 2
+map<string, string> SPRITE_AY_INDEX_SPRITE_C_DIR{ { "1", AY_C_DIR + NUMSPRITE_ONE_DIR }, { "2", AY_C_DIR + NUMSPRITE_TWO_DIR } };
+
+//4 5 6 7 8 9 10 11 14 15 16 18 19
+map<string, string> SPRITE_AY_INDEX_FACE_C_DIR{
+	{ "4", AY_C_DIR + ALL_FACE_INDEX[4] },
+	{ "5", AY_C_DIR + ALL_FACE_INDEX[5] },
+	{ "6", AY_C_DIR + ALL_FACE_INDEX[6] },
+	{ "7", AY_C_DIR + ALL_FACE_INDEX[7] },
+	{ "8", AY_C_DIR + ALL_FACE_INDEX[8] },
+	{ "9", AY_C_DIR + ALL_FACE_INDEX[9] },
+	{ "10", AY_C_DIR + ALL_FACE_INDEX[10] },
+	{ "11", AY_C_DIR + ALL_FACE_INDEX[11] },
+	{ "14", AY_C_DIR + ALL_FACE_INDEX[14] },
+	{ "15", AY_C_DIR + ALL_FACE_INDEX[15] },
+	{ "16", AY_C_DIR + ALL_FACE_INDEX[16] },
+	{ "18", AY_C_DIR + ALL_FACE_INDEX[18] },
+	{ "19", AY_C_DIR + ALL_FACE_INDEX[19] }
+};
+map<string, map<string, string>> SPRITE_AY_INDEX_C
+{
+	{ NAME_MAP_SPRITE, SPRITE_AY_INDEX_SPRITE_C_DIR },
+	{ NAME_MAP_FACE, SPRITE_AY_INDEX_FACE_C_DIR }
+};
+//C_YAN 
+// sp 1 2
+map<string, string> SPRITE_AY_INDEX_SPRITE_C_YAN_DIR{ { "1", AY_C_YAN_DIR + NUMSPRITE_ONE_DIR }, { "2", AY_C_YAN_DIR + NUMSPRITE_TWO_DIR } };
+
+//4 5 6 7 8 9 10 11 14 15 16 18 19
+map<string, string> SPRITE_AY_INDEX_FACE_C_YAN_DIR{
+	{ "4", AY_C_YAN_DIR + ALL_FACE_INDEX[4] },
+	{ "5", AY_C_YAN_DIR + ALL_FACE_INDEX[5] },
+	{ "6", AY_C_YAN_DIR + ALL_FACE_INDEX[6] },
+	{ "7", AY_C_YAN_DIR + ALL_FACE_INDEX[7] },
+	{ "8", AY_C_YAN_DIR + ALL_FACE_INDEX[8] },
+	{ "9", AY_C_YAN_DIR + ALL_FACE_INDEX[9] },
+	{ "10", AY_C_YAN_DIR + ALL_FACE_INDEX[10] },
+	{ "11", AY_C_YAN_DIR + ALL_FACE_INDEX[11] },
+	{ "14", AY_C_YAN_DIR + ALL_FACE_INDEX[14] },
+	{ "15", AY_C_YAN_DIR + ALL_FACE_INDEX[15] },
+	{ "16", AY_C_YAN_DIR + ALL_FACE_INDEX[16] },
+	{ "18", AY_C_YAN_DIR + ALL_FACE_INDEX[18] },
+	{ "19", AY_C_YAN_DIR + ALL_FACE_INDEX[19] }
+};
+map<string, map<string, string>> SPRITE_AY_INDEX_C_YAN
+{
+	{ NAME_MAP_SPRITE, SPRITE_AY_INDEX_SPRITE_C_YAN_DIR },
+	{ NAME_MAP_FACE, SPRITE_AY_INDEX_FACE_C_YAN_DIR }
+};
+//L 
+// sp 1 2  
+map<string, string> SPRITE_AY_INDEX_SPRITE_L_DIR{ { "1", AY_L_DIR + NUMSPRITE_ONE_DIR }, { "2", AY_L_DIR + NUMSPRITE_TWO_DIR } };
+// 4 5 6 7 8 10 11 14 15 16	18 19 
+map<string, string> SPRITE_AY_INDEX_FACE_L_DIR{
+	{ "4", AY_L_DIR + ALL_FACE_INDEX[4] },
+	{ "5", AY_L_DIR + ALL_FACE_INDEX[5] },
+	{ "7", AY_L_DIR + ALL_FACE_INDEX[7] },
+	{ "8", AY_L_DIR + ALL_FACE_INDEX[8] },
+	{ "10", AY_L_DIR + ALL_FACE_INDEX[10] },
+	{ "11", AY_L_DIR + ALL_FACE_INDEX[11] },
+	{ "14", AY_L_DIR + ALL_FACE_INDEX[14] },
+	{ "15", AY_L_DIR + ALL_FACE_INDEX[15] },
+	{ "16", AY_L_DIR + ALL_FACE_INDEX[16] },
+	{ "18", AY_L_DIR + ALL_FACE_INDEX[18] },
+	{ "19", AY_L_DIR + ALL_FACE_INDEX[19] }
+};
+map<string, map<string, string>> SPRITE_AY_INDEX_L
+{
+	{ NAME_MAP_SPRITE, SPRITE_AY_INDEX_SPRITE_L_DIR },
+	{ NAME_MAP_FACE, SPRITE_AY_INDEX_FACE_L_DIR }
+};
+//L_YAN  
+// sp 1 2  
+map<string, string> SPRITE_AY_INDEX_SPRITE_L_YAN_DIR{ { "1", AY_L_YAN_DIR + NUMSPRITE_ONE_DIR }, { "2", AY_L_YAN_DIR + NUMSPRITE_TWO_DIR } };
+// 4 5 6 7 8 10 11 14 15 16 18 19 
+map<string, string> SPRITE_AY_INDEX_FACE_L_YAN_DIR{
+	{ "4", AY_L_YAN_DIR + ALL_FACE_INDEX[4] },
+	{ "5", AY_L_YAN_DIR + ALL_FACE_INDEX[5] },
+	{ "7", AY_L_YAN_DIR + ALL_FACE_INDEX[7] },
+	{ "8", AY_L_YAN_DIR + ALL_FACE_INDEX[8] },
+	{ "10", AY_L_YAN_DIR + ALL_FACE_INDEX[10] },
+	{ "11", AY_L_YAN_DIR + ALL_FACE_INDEX[11] },
+	{ "14", AY_L_YAN_DIR + ALL_FACE_INDEX[14] },
+	{ "15", AY_L_YAN_DIR + ALL_FACE_INDEX[15] },
+	{ "16", AY_L_YAN_DIR + ALL_FACE_INDEX[16] },
+	{ "18", AY_L_YAN_DIR + ALL_FACE_INDEX[18] },
+	{ "19", AY_L_YAN_DIR + ALL_FACE_INDEX[19] }
+};
+map<string, map<string, string>> SPRITE_AY_INDEX_L_YAN
+{
+	{ NAME_MAP_SPRITE, SPRITE_AY_INDEX_SPRITE_L_YAN_DIR },
+	{ NAME_MAP_FACE, SPRITE_AY_INDEX_FACE_L_YAN_DIR }
+};
+//L_OLD
+// sp 2
+map<string, string> SPRITE_AY_INDEX_SPRITE_L_OLD_DIR{ { "2", AY_L_OLD_DIR + NUMSPRITE_TWO_DIR } };
+
+// 8 
+map<string, string> SPRITE_AY_INDEX_FACE_L_OLD_DIR{
+	{ "8", AY_L_OLD_DIR + ALL_FACE_INDEX[8] }
+};
+map<string, map<string, string>> SPRITE_AY_INDEX_L_OLD
+{
+	{ NAME_MAP_SPRITE, SPRITE_AY_INDEX_SPRITE_L_OLD_DIR },
+	{ NAME_MAP_FACE, SPRITE_AY_INDEX_FACE_L_OLD_DIR }
+};
+//R 
+// sp 1 2 
+map<string, string> SPRITE_AY_INDEX_SPRITE_R_DIR{ { "1", AY_R_DIR + NUMSPRITE_ONE_DIR }, { "2", AY_R_DIR + NUMSPRITE_TWO_DIR } };
+// 4 5 6 7 8 9 10 14 15 16 18 19
+map<string, string> SPRITE_AY_INDEX_FACE_R_DIR{
+	{ "4", AY_R_DIR + ALL_FACE_INDEX[4] },
+	{ "5", AY_R_DIR + ALL_FACE_INDEX[5] },
+	{ "6", AY_R_DIR + ALL_FACE_INDEX[6] },
+	{ "7", AY_R_DIR + ALL_FACE_INDEX[7] },
+	{ "8", AY_R_DIR + ALL_FACE_INDEX[8] },
+	{ "9", AY_R_DIR + ALL_FACE_INDEX[9] },
+	{ "10", AY_R_DIR + ALL_FACE_INDEX[10] },
+	{ "14", AY_R_DIR + ALL_FACE_INDEX[14] },
+	{ "15", AY_R_DIR + ALL_FACE_INDEX[15] },
+	{ "16", AY_R_DIR + ALL_FACE_INDEX[16] },
+	{ "18", AY_R_DIR + ALL_FACE_INDEX[18] },
+	{ "19", AY_R_DIR + ALL_FACE_INDEX[19] }
+};
+map<string, map<string, string>> SPRITE_AY_INDEX_R
+{
+	{ NAME_MAP_SPRITE, SPRITE_AY_INDEX_SPRITE_R_DIR },
+	{ NAME_MAP_FACE, SPRITE_AY_INDEX_FACE_R_DIR }
+};
+//R_YAN 
+// sp 1 2 
+map<string, string> SPRITE_AY_INDEX_SPRITE_R_YAN_DIR{ { "1", AY_R_YAN_DIR + NUMSPRITE_ONE_DIR }, { "2", AY_R_YAN_DIR + NUMSPRITE_TWO_DIR } };
+// 4 5 6 7 8 9 10 14 15 16 18 19 
+map<string, string> SPRITE_AY_INDEX_FACE_R_YAN_DIR{
+	{ "4", AY_R_YAN_DIR + ALL_FACE_INDEX[4] },
+	{ "5", AY_R_YAN_DIR + ALL_FACE_INDEX[5] },
+	{ "6", AY_R_YAN_DIR + ALL_FACE_INDEX[6] },
+	{ "7", AY_R_YAN_DIR + ALL_FACE_INDEX[7] },
+	{ "8", AY_R_YAN_DIR + ALL_FACE_INDEX[8] },
+	{ "9", AY_R_YAN_DIR + ALL_FACE_INDEX[9] },
+	{ "10", AY_R_YAN_DIR + ALL_FACE_INDEX[10] },
+	{ "14", AY_R_YAN_DIR + ALL_FACE_INDEX[14] },
+	{ "15", AY_R_YAN_DIR + ALL_FACE_INDEX[15] },
+	{ "16", AY_R_YAN_DIR + ALL_FACE_INDEX[16] },
+	{ "18", AY_R_YAN_DIR + ALL_FACE_INDEX[18] },
+	{ "19", AY_R_YAN_DIR + ALL_FACE_INDEX[19] }
+};
+map<string, map<string, string>> SPRITE_AY_INDEX_R_YAN
+{
+	{ NAME_MAP_SPRITE, SPRITE_AY_INDEX_SPRITE_R_YAN_DIR },
+	{ NAME_MAP_FACE, SPRITE_AY_INDEX_FACE_R_YAN_DIR }
+};
+//R_OLD 
+// sp 2
+map<string, string> SPRITE_AY_INDEX_SPRITE_R_OLD_DIR{ { "2", AY_R_OLD_DIR + NUMSPRITE_TWO_DIR } };
+// 7 
+map<string, string> SPRITE_AY_INDEX_FACE_R_OLD_DIR{
+	{ "7", AY_R_OLD_DIR + ALL_FACE_INDEX[7] }
+};
+map<string, map<string, string>> SPRITE_AY_INDEX_R_OLD
+{
+	{ NAME_MAP_SPRITE, SPRITE_AY_INDEX_SPRITE_R_OLD_DIR },
+	{ NAME_MAP_FACE, SPRITE_AY_INDEX_FACE_R_OLD_DIR }
+};
+map<string, map<string, map<string, string>>> SPRITE_AY_DIR
+{
+	{ "C", SPRITE_AY_INDEX_C },
+	{ "C_YAN", SPRITE_AY_INDEX_C_YAN },
+	{ "L", SPRITE_AY_INDEX_L },
+	{ "L_YAN", SPRITE_AY_INDEX_L_YAN },
+	{ "L_OLD", SPRITE_AY_INDEX_L_OLD },
+	{ "R", SPRITE_AY_INDEX_R },
+	{ "R_YAN", SPRITE_AY_INDEX_R_YAN },
+	{ "R_OLD", SPRITE_AY_INDEX_R_OLD }
+};

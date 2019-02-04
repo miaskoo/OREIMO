@@ -1,0 +1,689 @@
+
+//
+//vector<vector<setting_pose>> pose;
+//
+//model model_info(int name_model, int num_texture)
+//{
+//	string names[] = { "AY", "KA", "KI", "KU", "MA", "SA" };
+//	string name_texture;
+//	switch (num_texture)
+//	{
+//	case 1:
+//		name_texture = "1";
+//		break;
+//	case 2:
+//		name_texture = "2";
+//		break;
+//	case 3:
+//		name_texture = "3";
+//		break;
+//	default:
+//		throw string("UNKNOWN_NUM_TEXTURE");
+//		break;
+//	}
+//	model temp;
+//	ifstream model_file("..\\Resources\\live2d.txt", ios::binary);
+//	string buff;
+//	string prename = "{MODELS}";
+//	string endname = "{/MODELS}";
+//	string prematrix = "<MATRIX>";
+//	string endmatrix = "</MATRIX>";
+//	string name = "[" + names[name_model] + "]";
+//	string name_end = "[/" + names[name_model] + "]";
+//	string num = "<" + name_texture + ">";
+//	string endnum = "</" + name_texture + ">";
+//	while (getline(model_file, buff))
+//	{
+//		buff = buff.substr(0, buff.size() - 1);
+//		if (prename == buff)
+//		{
+//			while (getline(model_file, buff))
+//			{
+//				buff = buff.substr(0, buff.size() - 1);
+//				if (buff == endname)
+//					break;
+//				else if (buff == name)
+//				{
+//					while (getline(model_file, buff))
+//					{
+//						buff = buff.substr(0, buff.size() - 1);
+//						if (buff == endname)
+//							break;
+//						else if (buff == num)
+//						{
+//							int n = 0;
+//							while (getline(model_file, buff))
+//							{
+//								buff = buff.substr(0, buff.size() - 1);
+//								n++;
+//								if (n > 6)
+//									throw string("ERROR_UNMAX_COUNT_TEXTURE");
+//								if (buff == endnum)
+//								{
+//									while (getline(model_file, buff))
+//									{
+//										buff = buff.substr(0, buff.size() - 1);
+//										if (buff == prematrix)
+//										{
+//											float postconvert;
+//											getline(model_file, buff);
+//											buff = buff.substr(0, buff.size() - 1);
+//											postconvert = stof(buff);
+//											temp.matrix.x = postconvert;
+//											getline(model_file, buff);
+//											buff = buff.substr(0, buff.size() - 1);
+//											postconvert = stof(buff);
+//											temp.matrix.y = postconvert;
+//											getline(model_file, buff);
+//											buff = buff.substr(0, buff.size() - 1);
+//											postconvert = stof(buff);
+//											temp.matrix.z = postconvert;
+//											getline(model_file, buff);
+//											buff = buff.substr(0, buff.size() - 1);
+//											if (buff == endmatrix)
+//												break;
+//											else
+//												throw string("ERROR_MISSING_MATRIX_BOX");
+//										}
+//									}
+//									break;
+//								}
+//								else
+//									switch (n)
+//								{
+//									case 1:
+//										temp.dir_model = buff;
+//										break;
+//									default:
+//										temp.dir_texturs.push_back(buff);
+//								}
+//							}
+//							break;
+//						}
+//					}
+//					break;
+//				}
+//			}
+//		}
+//	}
+//	model_file.close();
+//	return temp;
+//}
+//
+//string search_motion(int name_model, int num_motion)
+//{
+//	string names[] = { "AY", "KA", "KI", "KU", "MA", "SA" };
+//	string name = "{" + names[name_model] + "}";
+//	string name_end = "{/" + names[name_model] + "}";
+//	for (int n = 0; n < setmotion.size(); n++)
+//	{
+//		if (setmotion[n] == name)
+//		{
+//			switch (num_motion)
+//			{
+//			case 1:
+//				n++;
+//				if (setmotion[n] == name_end)
+//					throw string("ERROR_MISSING_TEXTURE");
+//				else
+//					return(setmotion[n]);
+//			case 2:
+//				n = n+2;
+//				if (setmotion[n] == name_end || setmotion[n - 1] == name_end)
+//					throw string("ERROR_MISSING_TEXTURE");
+//				else
+//					return (setmotion[n]);
+//			case 3:
+//				n = n + 3;
+//				if (setmotion[n] == name_end || setmotion[n - 1] == name_end)
+//					throw string("ERROR_MISSING_TEXTURE");
+//				else
+//					return (setmotion[n]);
+//			case 4:
+//				n = n + 4;
+//				if (setmotion[n] == name_end || setmotion[n - 1] == name_end)
+//					throw string("ERROR_MISSING_TEXTURE");
+//				else
+//					return (setmotion[n]);
+//			case 5:
+//				n = n + 5;
+//				if (setmotion[n] == name_end || setmotion[n - 1] == name_end)
+//					throw string("ERROR_MISSING_TEXTURE");
+//				else
+//					return (setmotion[n]);
+//			case 6:
+//				n = n + 6;
+//				if (setmotion[n] == name_end || setmotion[n - 1] == name_end)
+//					throw string("ERROR_MISSING_TEXTURE");
+//				else
+//					return (setmotion[n]);
+//			case 7:
+//				n = n + 7;
+//				if (setmotion[n] == name_end || setmotion[n - 1] == name_end)
+//					throw string("ERROR_MISSING_TEXTURE");
+//				else
+//					return (setmotion[n]);
+//			default:
+//				throw string("ERROR_MISSING_TEXTURE");
+//			}
+//		}
+//	}
+//}
+//
+//void create_action()
+//{
+//	vector<setting_pose> pose_head; // 
+//	vector<setting_pose> pose_hand; //00 - стандарт, опущенные 01 - сложеные 02 - правая в бок, левая опущена, 03 - упертые в бока, 04 - правая поднята как у 01, левая как у 00
+//	vector<setting_pose> pose_body; //ключи поз тела 00 - стандарт,серидина 01 - вправо 02 - влево
+//	vector<setting_pose> pose_head2;
+//	vector<setting_pose> brow_head;
+//	vector<setting_pose> eye_head;
+//	setting_pose temp;
+//
+//	////////////////////////////////////////////////////////
+//	////////////////////////////////////////////////////////
+//	////////////////////////////////////////////////////////
+//	// настройка пресетов рук 01
+//	temp.name_param.push_back("PARAM_UDEGUMI_L");
+//	temp.name_param.push_back("PARAM_UDEGUMI_R");
+//	temp.position_param.push_back(-10);
+//	temp.position_param.push_back(-10);
+//	pose_hand.push_back(temp); // ключ 00
+//	temp.position_param[0] = 20;
+//	temp.position_param[1] = 20;
+//	pose_hand.push_back(temp); // ключ 01
+//	temp.position_param[0] = -10;
+//	temp.position_param[1] = 0;
+//	pose_hand.push_back(temp); // ключ 02
+//	temp.position_param[0] = 0;
+//	temp.position_param[1] = 0;
+//	pose_hand.push_back(temp); // ключ 03
+//	temp.position_param[0] = 20;
+//	temp.position_param[1] = -10;
+//	pose_hand.push_back(temp); // ключ 04
+//	temp.name_param.clear();
+//	temp.position_param.clear();
+//	////////////////////////////////////////////////////////
+//	////////////////////////////////////////////////////////
+//	////////////////////////////////////////////////////////
+//	// настройка пресетов тела x 00
+//	temp.name_param.push_back("PARAM_BODY_ANGLE_X");
+//	temp.position_param.push_back(0);
+//	pose_body.push_back(temp); // ключ 00
+//	temp.position_param[0] = 10;
+//	pose_body.push_back(temp); // ключ 01
+//	temp.position_param[0] = -10;
+//	pose_body.push_back(temp); // ключ 02
+//	temp.name_param.clear();
+//	temp.position_param.clear();
+//	////////////////////////////////////////////////////////
+//	////////////////////////////////////////////////////////
+//	////////////////////////////////////////////////////////
+//	// настройка пресетов лица 02
+//	//00 - стандарт, брови подняты не улыбается
+//	//01 - улыбается, брови подняты
+//	//02 - похоже на 01, но брови чуть выше
+//	//03 - похоже на 02, но тут брови чуть повернуты во внутрь
+//	//04 - зла, глаза чуток прикрыты
+//	//05 - зла, глаза открыты
+//	//06 - грусновата
+//	temp.name_param.push_back("PARAM_MOUTH_FORM"); // форма рта от -1 до 1
+//	temp.name_param.push_back("PARAM_BROW_L_FORM"); // форма левой брови от от -1 до 1
+//	temp.name_param.push_back("PARAM_BROW_R_FORM"); // форма правой бровиот -1 до 1
+//	temp.name_param.push_back("PARAM_BROW_L_SIDE"); // расстояние от центра до левой брови -1 до 1
+//	temp.name_param.push_back("PARAM_BROW_R_SIDE"); //  расстояние от центра до правой брови -1 до 1
+//	temp.name_param.push_back("PARAM_BROW_L_ANGLE"); // поворот левой брови -1 до 1
+//	temp.name_param.push_back("PARAM_BROW_R_ANGLE"); // поворот правой брови -1 до 1
+//	temp.position_param.push_back(0);
+//	temp.position_param.push_back(0);
+//	temp.position_param.push_back(0);// brow y 0
+//	temp.position_param.push_back(0);
+//	temp.position_param.push_back(0);
+//	temp.position_param.push_back(0);
+//	temp.position_param.push_back(0);
+//	pose_head.push_back(temp); // ключ 00
+//	//////////////////////////////////////////////////////////////
+//	temp.position_param[0] = 1;
+//	temp.position_param[1] = 0;
+//	temp.position_param[2] = 0;// brow y 0.5
+//	temp.position_param[3] = 0;
+//	temp.position_param[4] = 0;
+//	temp.position_param[5] = 0;
+//	temp.position_param[6] = 0;
+//	pose_head.push_back(temp); // ключ 01
+//	//////////////////////////////////////////////////////////////
+//	temp.position_param[0] = 1;
+//	temp.position_param[1] = 0;
+//	temp.position_param[2] = 0; // brow y 1
+//	temp.position_param[3] = 0;
+//	temp.position_param[4] = 0;
+//	temp.position_param[5] = -0.5;
+//	temp.position_param[6] = -0.5;
+//	pose_head.push_back(temp); // ключ 02
+//	//////////////////////////////////////////////////////////////
+//	temp.position_param[0] = 1;
+//	temp.position_param[1] = 0;
+//	temp.position_param[2] = 0;// brow y 1
+//	temp.position_param[3] = 0;
+//	temp.position_param[4] = 0;
+//	temp.position_param[5] = 0;
+//	temp.position_param[6] = 0;
+//	pose_head.push_back(temp); // ключ 03
+//	//////////////////////////////////////////////////////////////
+//	temp.position_param[0] = -1;
+//	temp.position_param[1] = -1;
+//	temp.position_param[2] = -1;// brow y 0.2
+//	temp.position_param[3] = -0.5;
+//	temp.position_param[4] = -0.5;
+//	temp.position_param[5] = -0.5;
+//	temp.position_param[6] = -0.5;
+//	temp.name_param.push_back("PARAM_EYE_L_OPEN"); // открытость глаз от 0 до 2
+//	temp.name_param.push_back("PARAM_EYE_R_OPEN"); // открытость глаз от 0 до 2
+//	temp.position_param.push_back(-0.15);
+//	temp.position_param.push_back(-0.15);
+//	pose_head.push_back(temp); // ключ 04 чуть прикрыты глаза 0.85
+//	//////////////////////////////////////////////////////////////
+//	temp.name_param.erase(temp.name_param.end() - 1);
+//	temp.name_param.erase(temp.name_param.end() - 1);
+//	temp.position_param.erase(temp.position_param.end() - 1);
+//	temp.position_param.erase(temp.position_param.end() - 1);
+//	//////////////////////////////////////////////////////////////
+//	temp.position_param[0] = -1;
+//	temp.position_param[1] = -1;
+//	temp.position_param[2] = -1; //brow y 0.1
+//	temp.position_param[3] = -0.9;
+//	temp.position_param[4] = -0.9;
+//	temp.position_param[5] = -0.5;
+//	temp.position_param[6] = -0.5;
+//	pose_head.push_back(temp); // ключ 05 
+//	//////////////////////////////////////////////////////////////
+//	temp.position_param[0] = -0.5;
+//	temp.position_param[1] = -1;
+//	temp.position_param[2] = -1;// brow y 0.2
+//	temp.position_param[3] = -0.5;
+//	temp.position_param[4] = -0.5;
+//	temp.position_param[5] = 0.5;
+//	temp.position_param[6] = 0.5;
+//	temp.name_param.push_back("PARAM_EYE_L_OPEN"); // открытость глаз от 0 до 2
+//	temp.name_param.push_back("PARAM_EYE_R_OPEN"); // открытость глаз от 0 до 2
+//	temp.position_param.push_back(-0.15);
+//	temp.position_param.push_back(-0.15);
+//	pose_head.push_back(temp); // ключ 06 чуть прикрыты глаза
+//	//////////////////////////////////////////////////////////////
+//	temp.name_param.erase(temp.name_param.end() - 1);
+//	temp.name_param.erase(temp.name_param.end() - 1);
+//	temp.position_param.erase(temp.position_param.end() - 1);
+//	temp.position_param.erase(temp.position_param.end() - 1);
+//	//////////////////////////////////////////////////////////////
+//	temp.position_param[0] = -1;
+//	temp.position_param[1] = -1;
+//	temp.position_param[2] = 0;// brow y 0.2
+//	temp.position_param[3] = 0;
+//	temp.position_param[4] = 0;
+//	temp.position_param[5] = 0;
+//	temp.position_param[6] = 0;
+//	pose_head.push_back(temp); // ключ 07
+//	//////////////////////////////////////////////////////////////
+//	temp.position_param[0] = -0.4; // PARAM_MOUTH_SIZE = 1
+//	temp.position_param[1] = -1;
+//	temp.position_param[2] = -1;// brow y 0.1
+//	temp.position_param[3] = 0;
+//	temp.position_param[4] = 0;
+//	temp.position_param[5] = 1;
+//	temp.position_param[6] = 1;
+//	temp.name_param.push_back("PARAM_EYE_L_OPEN"); // открытость глаз от 0 до 2
+//	temp.name_param.push_back("PARAM_EYE_R_OPEN"); // открытость глаз от 0 до 2
+//	temp.position_param.push_back(-0.15);
+//	temp.position_param.push_back(-0.15);
+//	pose_head.push_back(temp); // ключ 08 чуть прикрыты глаза
+//	//////////////////////////////////////////////////////////////
+//	temp.name_param.erase(temp.name_param.end() - 1);
+//	temp.name_param.erase(temp.name_param.end() - 1);
+//	temp.position_param.erase(temp.position_param.end() - 1);
+//	temp.position_param.erase(temp.position_param.end() - 1);
+//	//////////////////////////////////////////////////////////////
+//	temp.position_param[0] = 0;
+//	temp.position_param[1] = -1;
+//	temp.position_param[2] = -1;// brow y 0.2
+//	temp.position_param[3] = -0.5;
+//	temp.position_param[4] = -0.5;
+//	temp.position_param[5] = -1;
+//	temp.position_param[6] = -1;
+//	pose_head.push_back(temp); // ключ 09
+//	//////////////////////////////////////////////////////////////
+//	temp.position_param[0] = 1;
+//	temp.position_param[1] = 0;
+//	temp.position_param[2] = 0;// brow y 0.5
+//	temp.position_param[3] = 0;
+//	temp.position_param[4] = 0;
+//	temp.position_param[5] = -0.5;
+//	temp.position_param[6] = -0.5;
+//	temp.name_param.push_back("PARAM_EYE_BALL_FORM_01");
+//	temp.position_param.push_back(0.6);
+//	temp.name_param.push_back("PARAM_TERE");
+//	temp.position_param.push_back(1);
+//	pose_head.push_back(temp); // ключ 10 
+//	//////////////////////////////////////////////////////////////
+//	temp.position_param[0] = -0.5;
+//	temp.position_param[1] = -1;
+//	temp.position_param[2] = -1;// brow y 0.5
+//	temp.position_param[3] = 0;
+//	temp.position_param[4] = 0;
+//	temp.position_param[5] = -0.5;
+//	temp.position_param[6] = -0.5;
+//	temp.position_param[7] = 0.3;// PARAM_EYE_BALL_FORM_01
+//	temp.position_param[8] = -1; //PARAM_TERE
+//	pose_head.push_back(temp); // ключ 11
+//	//////////////////////////////////////////////////////////////
+//	temp.name_param.erase(temp.name_param.end() - 1);
+//	temp.name_param.erase(temp.name_param.end() - 1);
+//	temp.position_param.erase(temp.position_param.end() - 1);
+//	temp.position_param.erase(temp.position_param.end() - 1); // удаление лишних частей
+//	//////////////////////////////////////////////////////////////
+//	temp.position_param[0] = -1;
+//	temp.position_param[1] = -1;
+//	temp.position_param[2] = -0.3;// brow y 0.5
+//	temp.position_param[3] = 0;
+//	temp.position_param[4] = 0;
+//	temp.position_param[5] = -0.5;
+//	temp.position_param[6] = -0.5;
+//	temp.name_param.push_back("PARAM_EYE_L_OPEN"); // открытость глаз от 0 до 2
+//	temp.name_param.push_back("PARAM_EYE_R_OPEN"); // открытость глаз от 0 до 2
+//	temp.position_param.push_back(-0.15);
+//	temp.position_param.push_back(-0.15);
+//	pose_head.push_back(temp); // ключ 12  чуть прикрыты глаза
+//	//////////////////////////////////////////////////////////////
+//	temp.name_param.erase(temp.name_param.end() - 1);
+//	temp.name_param.erase(temp.name_param.end() - 1);
+//	temp.position_param.erase(temp.position_param.end() - 1);
+//	temp.position_param.erase(temp.position_param.end() - 1);
+//	//////////////////////////////////////////////////////////////
+//	temp.position_param[0] = -0.5;
+//	temp.position_param[1] = -0.5;
+//	temp.position_param[2] = -0.5;// brow y 0.2
+//	temp.position_param[3] = 0;
+//	temp.position_param[4] = 0;
+//	temp.position_param[5] = -0.5;
+//	temp.position_param[6] = -0.5;
+//	temp.name_param.push_back("PARAM_TERE");
+//	temp.position_param.push_back(-1); //PARAM_TERE
+//	pose_head.push_back(temp); // ключ 13 
+//	//////////////////////////////////////////////////////////////
+//	temp.name_param.erase(temp.name_param.end() - 1);
+//	temp.position_param.erase(temp.position_param.end() - 1); // удаление лишних частей
+//	//////////////////////////////////////////////////////////////
+//	temp.position_param[0] = -0.5;
+//	temp.position_param[1] = 0;
+//	temp.position_param[2] = 0;// brow y 0.2
+//	temp.position_param[3] = 0;
+//	temp.position_param[4] = 0;
+//	temp.position_param[5] = -0.5;
+//	temp.position_param[6] = -0.5;
+//	temp.name_param.push_back("PARAM_EYE_L_OPEN"); // открытость глаз от 0 до 2
+//	temp.name_param.push_back("PARAM_EYE_R_OPEN"); // открытость глаз от 0 до 2
+//	temp.position_param.push_back(-0.15);
+//	temp.position_param.push_back(-0.15);
+//	pose_head.push_back(temp); // ключ 14 чуть прикрыты глаза
+//	//////////////////////////////////////////////////////////////
+//	temp.name_param.erase(temp.name_param.end() - 1);
+//	temp.name_param.erase(temp.name_param.end() - 1);
+//	temp.position_param.erase(temp.position_param.end() - 1);
+//	temp.position_param.erase(temp.position_param.end() - 1);
+//	//////////////////////////////////////////////////////////////
+//	temp.position_param[0] = 0.5;
+//	temp.position_param[1] = 0;
+//	temp.position_param[2] = 0;// brow y 0.2
+//	temp.position_param[3] = 0;
+//	temp.position_param[4] = 0;
+//	temp.position_param[5] = 0;
+//	temp.position_param[6] = 0;
+//	temp.name_param.push_back("PARAM_TERE");
+//	temp.position_param.push_back(1); //PARAM_TERE
+//	temp.name_param.push_back("PARAM_EYE_L_OPEN"); // открытость глаз от 0 до 2
+//	temp.name_param.push_back("PARAM_EYE_R_OPEN"); // открытость глаз от 0 до 2
+//	temp.position_param.push_back(-0.20);
+//	temp.position_param.push_back(-0.20);
+//	pose_head.push_back(temp); // ключ 15 сильнее чем чуть прикрыты глаза
+//	//////////////////////////////////////////////////////////////
+//	temp.name_param.erase(temp.name_param.end() - 1);
+//	temp.name_param.erase(temp.name_param.end() - 1);
+//	temp.position_param.erase(temp.position_param.end() - 1);
+//	temp.position_param.erase(temp.position_param.end() - 1);
+//	//////////////////////////////////////////////////////////////
+//	temp.position_param[0] = -0.5;
+//	temp.position_param[1] = -1;
+//	temp.position_param[2] = -1;// brow y 0.2
+//	temp.position_param[3] = 0;
+//	temp.position_param[4] = 0;
+//	temp.position_param[5] = 0;
+//	temp.position_param[6] = 0;
+//	temp.position_param[7] = 1; //PARAM_TERE
+//	pose_head.push_back(temp); // ключ 16  чуть прикрыты глаза
+//
+//	////////////////////////////////////////////////////////
+//	temp.name_param.clear();
+//	temp.position_param.clear();
+//	////////////////////////////////////////////////////////
+//	////////////////////////////////////////////////////////	
+//	//////////////////////////////////////////////////////////
+//
+//	// настройка пресета головы по x 03
+//	temp.name_param.push_back("PARAM_ANGLE_X");
+//	temp.position_param.push_back(0);
+//	pose_head2.push_back(temp); // ключ 00
+//	temp.position_param[0] = 10;
+//	pose_head2.push_back(temp); // ключ 01
+//	temp.position_param[0] = -10;
+//	pose_head2.push_back(temp); // ключ 02
+//	temp.name_param.clear();
+//	temp.position_param.clear();
+//	////////////////////////////////////////////////////////
+//	////////////////////////////////////////////////////////
+//	////////////////////////////////////////////////////////
+//	//ключи провей 04
+//	temp.name_param.push_back("PARAM_BROW_L_Y"); // высота левой брови от 0 до 1
+//	temp.name_param.push_back("PARAM_BROW_R_Y"); // высота правой брови  от 0 до 1
+//	temp.position_param.push_back(1);
+//	temp.position_param.push_back(1);
+//	brow_head.push_back(temp); // ключ 00
+//	////////////////////////////////////////////////////////
+//	temp.position_param[0] = 0.5;
+//	temp.position_param[1] = 0.5;
+//	brow_head.push_back(temp); // ключ 01
+//	////////////////////////////////////////////////////////
+//	temp.position_param[0] = 0.2;
+//	temp.position_param[1] = 0.2;
+//	brow_head.push_back(temp); // ключ 02
+//	////////////////////////////////////////////////////////
+//	temp.position_param[0] = 0.1;
+//	temp.position_param[1] = 0.1;
+//	brow_head.push_back(temp); // ключ 03
+//	////////////////////////////////////////////////////////	
+//	temp.position_param[0] = 0;
+//	temp.position_param[1] = 0;
+//	brow_head.push_back(temp); // ключ 04
+//	temp.name_param.clear();
+//	temp.position_param.clear();
+//	//////////////////////////////////////////////////////////
+//	//////////////////////////////////////////////////////////
+//	//////////////////////////////////////////////////////////
+//	//ключ зрачков 05
+//	temp.name_param.push_back("PARAM_EYE_BALL_FORM_01"); // форма зрачков от 0 до 1
+//	temp.position_param.push_back(1);
+//	eye_head.push_back(temp); // ключ 00
+//	temp.name_param.clear();
+//	temp.position_param.clear();
+//
+//	pose.clear();
+//	pose.push_back(pose_body);
+//	pose.push_back(pose_hand);
+//	pose.push_back(pose_head);
+//	pose.push_back(pose_head2);
+//	pose.push_back(brow_head);
+//	pose.push_back(eye_head);
+//}
+//
+//
+//bool creat_motion(std::string param_id, float setWeight_id, std::vector<unsigned char> &v_buf)
+//{
+//	char temp_float[] = { '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0' };
+//	char complete_float[] = { '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0' };
+//	snprintf(temp_float, sizeof temp_float, "%f", setWeight_id);
+//	for (int n = 0; n < v_buf.size() - param_id.length(); n++)
+//	{
+//		unsigned char *temp = new unsigned char[param_id.length() + 1];
+//		temp[param_id.length()] = '\0';
+//		for (int z = 0, x = n; z < param_id.length(); z++, x++)
+//		{
+//			temp[z] = v_buf[x];
+//		}
+//		if (std::string(reinterpret_cast<char*>(temp)) == param_id)
+//		{
+//			while (v_buf[n - 1] != 0x3d) //знак равно
+//			{
+//				n++;
+//			}
+//			while (v_buf[n] != 0x0d) //перенос строки
+//			{
+//
+//				float temp_num;
+//				float temp_plus;
+//				std::string pre_convert;
+//				std::stringstream convert;
+//				while (true) //знак запятой
+//				{
+//					pre_convert = pre_convert + char(v_buf[n]);
+//					v_buf.erase(v_buf.begin() + n);
+//					if (char(v_buf[n]) == 0x2c || char(v_buf[n]) == '\r' || char(v_buf[n]) == '\n')
+//						break;
+//					//n++;
+//				}
+//				convert << pre_convert;
+//				convert >> temp_num;
+//				convert.clear();
+//				convert << temp_float;
+//				convert >> temp_plus;
+//				convert.clear();
+//				temp_num = temp_num + temp_plus;
+//				snprintf(complete_float, sizeof complete_float, "%f", temp_num);
+//				for (int l = 0; l < sizeof complete_float; l++)
+//				{
+//					v_buf.insert(v_buf.begin() + n, complete_float[l]);
+//					n++;
+//				}
+//				if (n + 1 == v_buf.size())
+//					break;
+//				n++;
+//			}
+//			//for (int z = 0; z < sizeof temp_float; z++)
+//			//{
+//			//	n++;
+//			//	v_buf.insert(v_buf.begin() + n, temp_float[z]);
+//			//}
+//			delete[] temp;
+//			return true;
+//			break;
+//		}
+//		delete[] temp;
+//	}
+//	return false;
+//}
+//
+//void add_motion(std::string param_id, float setWeight_id, std::vector<unsigned char> &v_buf)
+//{
+//
+//	char temp_float[4] = { '\0', '\0', '\0', '\0' };
+//	snprintf(temp_float, sizeof temp_float, "%f", setWeight_id);
+//	v_buf.push_back(0x0d);
+//	v_buf.push_back(0x0a);
+//	for (int z = 0; z < std::string(param_id).length(); z++)
+//	{
+//		v_buf.push_back(param_id[z]);
+//	}
+//	v_buf.push_back(0x3d); //знак равно
+//	for (int z = 0; z < sizeof temp_float; z++)
+//	{
+//		v_buf.push_back(temp_float[z]);
+//	}
+//	v_buf.push_back(0x0d);
+//}
+//
+//struct idle_size
+//{
+//	unsigned char* idle;
+//	int size_char;
+//};
+//
+//
+//idle_size get_idle(std::string temp_motion)
+//{
+//	idle_size temp;
+//	unsigned char* buf; // сам не удаляется потом удали
+//	std::vector<unsigned char> v_buf;
+//	ssize_t bufSize;
+//	buf = FileUtils::getInstance()->getFileData(temp_motion, "rb", &bufSize);
+//	temp.idle = buf;
+//	temp.size_char = bufSize;
+//	return (temp);
+//}
+//
+//idle_size get_custom_idle(std::string temp_motion, vector<string> param_id, vector<float> setWeight_id)
+//{
+//	idle_size temp;
+//	unsigned char* buf; // сам не удаляется потом удали
+//	std::vector<unsigned char> v_buf;
+//	ssize_t bufSize;
+//	buf = FileUtils::getInstance()->getFileData(temp_motion, "rb", &bufSize);
+//
+//
+//	for (int n = 0; n < bufSize; n++)
+//		v_buf.push_back(buf[n]);
+//	delete[] buf;
+//
+//	for (int n = 0; n < param_id.size(); n++)
+//	{
+//		if (creat_motion(param_id[n], setWeight_id[n], v_buf) == false)
+//		{
+//			add_motion(param_id[n], setWeight_id[n], v_buf);
+//		}
+//	}
+//
+//	buf = new unsigned char[v_buf.size() + 1];
+//	buf[v_buf.size()] = '\0';
+//	for (int x = 0; x < v_buf.size(); x++)
+//	{
+//		buf[x] = v_buf[x];
+//	}
+//	temp.idle = buf;
+//	temp.size_char = v_buf.size()+1;
+//	return (temp);
+//}
+//
+//
+//struct custom_param
+//{
+//	vector<string> param;
+//	vector<float> position;
+//};
+//
+//custom_param get_data_idle(vector<int> arg_param, vector<int> arg_key) // ключи 0 тело,1 руки, 2 лицо // получив циферные аргументы частей модели возвращает структуру с названием частей модели и их координаты как пресет
+//{
+//
+//	int cout_pos = arg_param.size();
+//	custom_param temp;
+//	for (int n = 0; n < cout_pos; n++)
+//	{
+//		for (int x = 0; x < pose[arg_param[n]][arg_key[n]].name_param.size(); x++)
+//		{
+//			temp.param.push_back(pose[arg_param[n]][arg_key[n]].name_param[x]);
+//		}
+//		for (int x = 0; x < pose[arg_param[n]][arg_key[n]].position_param.size(); x++)
+//		{
+//			temp.position.push_back(pose[arg_param[n]][arg_key[n]].position_param[x]);
+//		}
+//	}
+//
+//	return (temp);
+//
+//
+//}

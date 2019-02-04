@@ -1,0 +1,254 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="win32">
+      <UniqueIdentifier>{84a8ebd7-7cf0-47f6-b75e-d441df67da40}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="resource">
+      <UniqueIdentifier>{715254bc-d70b-4ec5-bf29-467dd3ace079}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src">
+      <UniqueIdentifier>{bb6c862e-70e9-49d9-81b7-3829a6f50471}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Live2D">
+      <UniqueIdentifier>{d993ca29-36de-4380-af06-d35c73ed3bc5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\Live2D">
+      <UniqueIdentifier>{49510e99-badf-4aa7-9991-e0decee96f38}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\Main">
+      <UniqueIdentifier>{1ef1054a-0cde-409a-b088-98890077fcac}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\Main\Objects">
+      <UniqueIdentifier>{ed111e1c-fc99-40df-8a47-3d69606503b6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\Main\Dirs">
+      <UniqueIdentifier>{3af830b1-149c-4a72-af7a-32984e5da556}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\Main\Actions">
+      <UniqueIdentifier>{59aff884-7cb8-4007-a8f2-61d7fad03fb3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\Main\Scrips">
+      <UniqueIdentifier>{5a9a3d3e-3c01-4e2e-bd76-e9dac74a96e5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\Old code">
+      <UniqueIdentifier>{9b841299-172f-4a6d-acbe-e12839ce712b}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="main.cpp">
+      <Filter>win32</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\framework\L2DModelMatrix.cpp">
+      <Filter>Live2D</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\framework\L2DMotionManager.cpp">
+      <Filter>Live2D</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\framework\L2DPhysics.cpp">
+      <Filter>Live2D</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\framework\L2DPose.cpp">
+      <Filter>Live2D</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\framework\L2DTargetPoint.cpp">
+      <Filter>Live2D</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\framework\L2DTextureDesc.cpp">
+      <Filter>Live2D</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\framework\L2DViewMatrix.cpp">
+      <Filter>Live2D</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\framework\Live2DFramework.cpp">
+      <Filter>Live2D</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\framework\L2DBaseModel.cpp">
+      <Filter>Live2D</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\framework\L2DExpressionMotion.cpp">
+      <Filter>Live2D</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\framework\L2DEyeBlink.cpp">
+      <Filter>Live2D</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\framework\L2DMatrix44.cpp">
+      <Filter>Live2D</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Classes\AppDelegate.cpp">
+      <Filter>src\Live2D</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Classes\Live2D\LAppLive2DManager.cpp">
+      <Filter>src\Live2D</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Classes\Live2D\LAppModel.cpp">
+      <Filter>src\Live2D</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Classes\Live2D\LAppTextureDesc.cpp">
+      <Filter>src\Live2D</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Classes\Live2D\LAppView.cpp">
+      <Filter>src\Live2D</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Classes\Live2D\PlatformManager.cpp">
+      <Filter>src\Live2D</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Classes\Main_Menu.cpp">
+      <Filter>src\Main</Filter>
+    </ClCompile>
+    <ClCompile Include="Resourse.cpp">
+      <Filter>src\Main\Dirs</Filter>
+    </ClCompile>
+    <ClCompile Include="COMMON_DIRS.cpp">
+      <Filter>src\Main\Dirs</Filter>
+    </ClCompile>
+    <ClCompile Include="Object_Scene.cpp">
+      <Filter>src\Main\Objects</Filter>
+    </ClCompile>
+    <ClCompile Include="Object_Noise.cpp">
+      <Filter>src\Main\Objects</Filter>
+    </ClCompile>
+    <ClCompile Include="Page.cpp">
+      <Filter>src\Main\Scrips</Filter>
+    </ClCompile>
+    <ClCompile Include="Actions.cpp">
+      <Filter>src\Main\Actions</Filter>
+    </ClCompile>
+    <ClCompile Include="Object_Sprite.cpp">
+      <Filter>src\Main\Objects</Filter>
+    </ClCompile>
+    <ClCompile Include="Object_Text.cpp">
+      <Filter>src\Main\Objects</Filter>
+    </ClCompile>
+    <ClCompile Include="Object_ORE.cpp">
+      <Filter>src\Main\Objects</Filter>
+    </ClCompile>
+    <ClCompile Include="Object_box.cpp">
+      <Filter>src\Old code</Filter>
+    </ClCompile>
+    <ClCompile Include="Object_Condition.cpp">
+      <Filter>src\Main\Objects</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="main.h">
+      <Filter>win32</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\framework\L2DModelMatrix.h">
+      <Filter>Live2D</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\framework\L2DMotionManager.h">
+      <Filter>Live2D</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\framework\L2DPhysics.h">
+      <Filter>Live2D</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\framework\L2DPose.h">
+      <Filter>Live2D</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\framework\L2DStandardID.h">
+      <Filter>Live2D</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\framework\L2DTargetPoint.h">
+      <Filter>Live2D</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\framework\L2DTextureDesc.h">
+      <Filter>Live2D</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\framework\L2DViewMatrix.h">
+      <Filter>Live2D</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\framework\Live2DFramework.h">
+      <Filter>Live2D</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\framework\IPlatformManager.h">
+      <Filter>Live2D</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\framework\L2DBaseModel.h">
+      <Filter>Live2D</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\framework\L2DExpressionMotion.h">
+      <Filter>Live2D</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\framework\L2DEyeBlink.h">
+      <Filter>Live2D</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\framework\L2DMatrix44.h">
+      <Filter>Live2D</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Classes\AppDelegate.h">
+      <Filter>src\Live2D</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Classes\Live2D\AppMacros.h">
+      <Filter>src\Live2D</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Classes\Live2D\LAppDefine.h">
+      <Filter>src\Live2D</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Classes\Live2D\LAppLive2DManager.h">
+      <Filter>src\Live2D</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Classes\Live2D\LAppModel.h">
+      <Filter>src\Live2D</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Classes\Live2D\LAppTextureDesc.h">
+      <Filter>src\Live2D</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Classes\Live2D\LAppView.h">
+      <Filter>src\Live2D</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Classes\Live2D\ModelSetting.h">
+      <Filter>src\Live2D</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Classes\Live2D\ModelSettingJson.h">
+      <Filter>src\Live2D</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Classes\Live2D\PlatformManager.h">
+      <Filter>src\Live2D</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Classes\Main_Menu.h">
+      <Filter>src\Main</Filter>
+    </ClInclude>
+    <ClInclude Include="COMMON_DIRS.h">
+      <Filter>src\Main\Dirs</Filter>
+    </ClInclude>
+    <ClInclude Include="Resourse.h">
+      <Filter>src\Main\Dirs</Filter>
+    </ClInclude>
+    <ClInclude Include="Object_Noise.h">
+      <Filter>src\Main\Objects</Filter>
+    </ClInclude>
+    <ClInclude Include="Object_Scene.h">
+      <Filter>src\Main\Objects</Filter>
+    </ClInclude>
+    <ClInclude Include="Page.h">
+      <Filter>src\Main\Scrips</Filter>
+    </ClInclude>
+    <ClInclude Include="Script.h">
+      <Filter>src\Main\Scrips</Filter>
+    </ClInclude>
+    <ClInclude Include="Actions.h">
+      <Filter>src\Main\Actions</Filter>
+    </ClInclude>
+    <ClInclude Include="Object_Sprite.h">
+      <Filter>src\Main\Objects</Filter>
+    </ClInclude>
+    <ClInclude Include="Object_Text.h">
+      <Filter>src\Main\Objects</Filter>
+    </ClInclude>
+    <ClInclude Include="Object_ORE.h">
+      <Filter>src\Main\Objects</Filter>
+    </ClInclude>
+    <ClInclude Include="Object_Box.h">
+      <Filter>src\Old code</Filter>
+    </ClInclude>
+    <ClInclude Include="Object_Condition.h">
+      <Filter>src\Main\Objects</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="game.rc">
+      <Filter>resource</Filter>
+    </ResourceCompile>
+  </ItemGroup>
+</Project>
