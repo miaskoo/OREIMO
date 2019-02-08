@@ -11,14 +11,14 @@ extern Node *Sprite5;
 extern Node *Sprite6;
 
 map< Node**, any_enum::state_node> check_scene_for_state{ { &Scene1, any_enum::FREE }, { &Scene2, any_enum::FREE } };
-//map< Node**, bool> unlock_parent{ { &Scene1, false }, { &Scene2, false }, { &Sprite1, false }, { &Sprite2, false }, { &Sprite3, false }, { &Sprite4, false }, { &Sprite5, false }, { &Sprite6, false } };
+
 array<Node**, 8> all_nodes = { &Scene1, &Scene2, &Sprite1, &Sprite2, &Sprite3, &Sprite4, &Sprite5, &Sprite6 };
 
-
-Node *Custom_Node = nullptr;
-Node *Custom_Node_old = nullptr;
-const int Custom_Tag = 34584;
-const int Custom_Tag_old = 34585;
+////map< Node**, bool> unlock_parent{ { &Scene1, false }, { &Scene2, false }, { &Sprite1, false }, { &Sprite2, false }, { &Sprite3, false }, { &Sprite4, false }, { &Sprite5, false }, { &Sprite6, false } };
+//Node *Custom_Node = nullptr;
+//Node *Custom_Node_old = nullptr;
+//const int Custom_Tag = 34584;
+//const int Custom_Tag_old = 34585;
 
 
 

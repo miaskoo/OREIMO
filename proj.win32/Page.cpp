@@ -7,7 +7,12 @@ extern Node *ORER;
 extern void chek_ore_lock(int);
 extern void action_ore(any_enum::posicion_sprite, type_action);
 
-map<any_enum::name_sprite, any_enum::scale_sprite> name_for_scale{ { any_enum::AY, any_enum::little }, { any_enum::DA, any_enum::little }, { any_enum::KI, any_enum::little } };//привить все спрайты
+map<any_enum::name_sprite, any_enum::scale_sprite> name_for_scale{
+	{ any_enum::AY, any_enum::little }, { any_enum::DA, any_enum::little }, { any_enum::KI, any_enum::little },
+	{ any_enum::AK, any_enum::little }, { any_enum::KA, any_enum::little }, { any_enum::KU, any_enum::little },
+	{ any_enum::MA, any_enum::little }, { any_enum::RO, any_enum::little }, { any_enum::SA, any_enum::little },
+	{ any_enum::SE, any_enum::little }, { any_enum::YO, any_enum::little }
+};
 
 map<Node**, any_enum::scale_sprite> sprite_for_scale
 { 
@@ -19,9 +24,8 @@ map<Node**, any_enum::scale_sprite> sprite_for_scale
 
 
 
-Page::Page(vector<Object_Scene*> cur_obj_ptr, vector<type_struct::type_object> cur_type, vector <type_interactions> cur_intr, vector <type_swich> сur_swich, vector<type_action> cur_act, text_box* cur_text)
+Page::Page(vector<Object_Scene*> cur_obj_ptr, vector<type_struct::type_object> cur_type, vector <type_interactions> cur_intr, vector <type_swich> сur_swich, vector<type_action> cur_act)
 {
-	page_text = cur_text;
 	for (int n = 0, act = 0, sw = 0; n < int(cur_obj_ptr.size()); n++)
 	{
 		this->objects.push_back(cur_obj_ptr[n]);// объектики
@@ -44,24 +48,9 @@ Page::Page(vector<Object_Scene*> cur_obj_ptr, vector<type_struct::type_object> c
 	}
 }
 
-bool Page::update()
-{
-	//for (int n = 0; n < int(all_nodes.size()); n++)
-	//{
-	//	if (unlock_parent[all_nodes[n]] == true)
-	//	{
-	//		(*all_nodes[n])->removeFromParent();
-	//		Game_Mode->addChild(*all_nodes[n]);
-	//	}
-	//}
-	return true;
-}
-
-
 
 bool Page::draw()
 {
-	//update();
 	if (int(objects.size()) - 1 < cur_obj)
 	{
 		return false;
@@ -69,24 +58,12 @@ bool Page::draw()
 
 	switch (objects_type[objects[cur_obj]])
 	{
-	//case type_struct::mixed:
-	//{
-	//			  if (objects_intreractions[objects[cur_obj]] == swich)
-	//			  {
-	//				  auto data = objects[cur_obj]->draw();
-	//				  cur_obj++;
-	//				  Action_mixed::swish(data.old_ptr, data.new_ptr, objects[cur_obj]->Get_wait(), this);
-	//			  }
-	//			  break;
-	//}
 	case type_struct::sprite:
 	{
 				   if (objects_intreractions[objects[cur_obj]] == action)
 				   {
 					   auto data = objects[cur_obj]->draw();
 					   auto cur_action_sprite = &objects_action[objects[cur_obj]];
-
-
 
 					   if (*cur_action_sprite == scale_lit || *cur_action_sprite == scale_mid || *cur_action_sprite == scale_big)
 					   {
@@ -126,9 +103,15 @@ bool Page::draw()
 								   break;
 							   }
 							   cur_obj++;
-							   Action_sprite::action(data.old_ptr, objects_action[objects[cur_obj - 1]], static_cast<Object_Sprtite*>(objects[cur_obj - 1])->Get_hide(), objects[cur_obj - 1]->Get_wait(), this);
-
+							   if (data.old_ptr != nullptr)
+								   Action_sprite::action(data.old_ptr, objects_action[objects[cur_obj - 1]], static_cast<Object_Sprtite*>(objects[cur_obj - 1])->Get_hide(), objects[cur_obj - 1]->Get_wait(), this);  
 						   }
+						   else
+						   {
+							   cur_obj++;
+							   this->draw();
+						   }
+							   
 					   }
 					   else
 					   {

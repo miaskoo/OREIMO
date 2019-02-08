@@ -53,8 +53,8 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup>
     <_ProjectFileVersion>10.0.40219.1</_ProjectFileVersion>
-    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(SolutionDir)$(Configuration).win32\</OutDir>
-    <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(Configuration).win32\</IntDir>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">OREIMO</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">OREIMO_S</IntDir>
     <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</LinkIncremental>
     <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(SolutionDir)$(Configuration).win32\</OutDir>
     <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(Configuration).win32\</IntDir>
@@ -67,8 +67,8 @@
     <CodeAnalysisRuleAssemblies Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" />
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <LibraryPath>$(MSBuildProgramFiles32)\Microsoft SDKs\Windows\v7.1A\lib;$(LibraryPath)</LibraryPath>
-    <IncludePath>C:\Users\miaskoo\Downloads\ORETEST\IOS\OREIMO\Classes;C:\Users\miaskoo\Downloads\ORETEST\IOS\OREIMO\proj.win32;..\..\..\include;..\..\..\framework;$(IncludePath)</IncludePath>
+    <LibraryPath>D:\SARANCHA\ORETESTO\IOS\OREIMO\proj.win32\OREIMO;$(MSBuildProgramFiles32)\Microsoft SDKs\Windows\v7.1A\lib;$(LibraryPath)</LibraryPath>
+    <IncludePath>D:\SARANCHA\ORETESTO\IOS\OREIMO\Classes;D:\SARANCHA\ORETESTO\IOS\OREIMO\proj.win32;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LibraryPath>$(MSBuildProgramFiles32)\Microsoft SDKs\Windows\v7.1A\lib;$(LibraryPath)</LibraryPath>
@@ -165,7 +165,6 @@ xcopy "$(ProjectDir)..\Resources" "$(OutDir)" /D /E /I /F /Y</Command>
     <ClCompile Include="Actions.cpp" />
     <ClCompile Include="COMMON_DIRS.cpp" />
     <ClCompile Include="main.cpp" />
-    <ClCompile Include="Object_box.cpp" />
     <ClCompile Include="Object_Condition.cpp" />
     <ClCompile Include="Object_Noise.cpp" />
     <ClCompile Include="Object_ORE.cpp" />
@@ -204,7 +203,6 @@ xcopy "$(ProjectDir)..\Resources" "$(OutDir)" /D /E /I /F /Y</Command>
     <ClInclude Include="Actions.h" />
     <ClInclude Include="COMMON_DIRS.h" />
     <ClInclude Include="main.h" />
-    <ClInclude Include="Object_Box.h" />
     <ClInclude Include="Object_Condition.h" />
     <ClInclude Include="Object_Noise.h" />
     <ClInclude Include="Object_ORE.h" />

@@ -80,6 +80,21 @@ static bool temp_sw = false; // Переменная которая указыв
 
 int nump = 0; // управляет выходом из потока субтитров
 
+//#define COMPILE
+
+
+
+
+#ifdef COMPILE
+string dir_setting = ".\\OREIMO\\Resources\\Profile\\config.bin";
+string dir_save_script = ".\\OREIMO\\Resources\\Scripts\\";
+string dir_load_script = ".\\OREIMO\\Resources\\Scripts\\";
+#else
+string dir_setting = ".\\Resources\\Profile\\config.bin";
+string dir_save_script = ".\\Resources\\Scripts\\";
+string dir_load_script = ".\\Resources\\Scripts\\";
+#endif
+
 
 void background_smooth(Node *Game_Mode, float volume);
 void GetSub(vector<string> *SubText, vector<int> *time, int *z, string file); // преобразует субтитры из str в вектора
@@ -111,8 +126,9 @@ Scene* MAINBOX::createScene()
 
 void confget()
 {
+	
 	char temp[1];
-	ifstream file("C:\\Users\\miaskoo\\Downloads\\ORETEST\\IOS\\OREIMO\\proj.win32\\Debug.win32\\Resources\\Profile\\config.bin", ios::binary);
+	ifstream file(dir_setting, ios::binary);
 	if (file)
 	{
 		for (int x = 0; x < 16; x++)
@@ -197,7 +213,7 @@ void confget()
 	}
 	else
 	{
-		ofstream newsetting("C:\\Users\\miaskoo\\Downloads\\ORETEST\\IOS\\OREIMO\\proj.win32\\Debug.win32\\Resources\\Profile\\config.bin", ios::binary);
+		ofstream newsetting(dir_setting, ios::binary);
 		char standart[] = { 0x00, 0x01, 0x00, 0x00, 0x01, 0x01, 0x01, 0x01 , 0x32, 0x64, 0x64, 0x64, 0x64, 0x32, 0x32, 0x32}; // первые восемь - буловы значения, потом пять байтов громкостей, потом еще 3 скорости текста от 0 до 100 (0x00, 0x64)
 		newsetting.write(standart, 16);
 		newsetting.close();
@@ -3835,7 +3851,7 @@ bool swap_mode = false; //при тру заменият перемещение 
 
 int save_script()
 {
-	string cur_name_script = "cus_script " + to_string(time(0));
+	string cur_name_script = dir_save_script + "cus_script " + to_string(time(0));
 
 
 	ofstream file(cur_name_script + ".dat", ios::binary);
@@ -3846,6 +3862,20 @@ int save_script()
 	vector<string>buff_log;
 	string snos = string({ 0x0A }) + string({ 0x0D });
 #endif
+
+	auto filed_exept = [&](){
+#ifdef LOG_SAVE
+		buff_log.push_back(snos);
+		buff_log.push_back("Неудача");
+		for (int _n = 0; _n < buff_log.size(); _n++)
+		{
+			log << buff_log[_n];
+		}
+		file.close();
+		log.close();
+#endif
+	};
+
 
 	int n = 0;
 	int i = 0;
@@ -3921,6 +3951,7 @@ int save_script()
 #ifdef LOG_SAVE
 																 buff_log.push_back(string({ 0x0A }) + string({ 0x0D }));
 																 buff_log.push_back("Ошибка сохранения, неизвестный свич сцены");
+																 filed_exept();
 																 return 1;
 #endif
 															 }
@@ -3935,6 +3966,7 @@ int save_script()
 #ifdef LOG_SAVE
 																 buff_log.push_back(snos);
 																 buff_log.push_back("Ошибка сохранения, неизвестная ключевая дирректория сцены");
+																 filed_exept();
 #endif
 																 return 1;
 															 }
@@ -3946,6 +3978,7 @@ int save_script()
 #ifdef LOG_SAVE
 																 buff_log.push_back(snos);
 																 buff_log.push_back("Ошибка сохранения, нет данных для создания сцены");
+																 filed_exept();
 #endif
 																 return 1;
 															 }
@@ -3965,11 +3998,16 @@ int save_script()
 																  buff.push_back(0x01);//байт подтипа взаимодействия
 															  else if (sign(n, i)->my_action == type_action::PUNCH)
 																  buff.push_back(0x02);
+															  else if (sign(n, i)->my_action == type_action::BLACK_IN)
+																  buff.push_back(0x03);
+															  else if (sign(n, i)->my_action == type_action::BLACK_OUT)
+																  buff.push_back(0x04);
 															  else
 															  {
 #ifdef LOG_SAVE
 																  buff_log.push_back(snos);
 																  buff_log.push_back("Ошибка сохранения, неизвестный экшон сцены");
+																  filed_exept();
 #endif
 																  return 1;
 															  }
@@ -4046,6 +4084,7 @@ int save_script()
 #ifdef LOG_SAVE
 																	  buff_log.push_back(snos);
 																	  buff_log.push_back("Ошибка сохранения, неизвестное имя спрайта");
+																	  filed_exept();
 #endif
 																	  return 1;
 																	  break;
@@ -4096,6 +4135,7 @@ int save_script()
 #ifdef LOG_SAVE
 																	  buff_log.push_back(snos);
 																	  buff_log.push_back("Ошибка сохранения, неизвестный тип текстуры спрайта");
+																	  filed_exept();
 #endif
 																	  return 1;
 																  }
@@ -4125,6 +4165,7 @@ int save_script()
 #ifdef LOG_SAVE
 																	  buff_log.push_back(snos);
 																	  buff_log.push_back("Ошибка сохранения, неизвестная позиция спрайта");
+																	  filed_exept();
 #endif
 																	  return 1;
 																	  break;
@@ -4166,6 +4207,7 @@ int save_script()
 #ifdef LOG_SAVE
 																  buff_log.push_back(snos);
 																  buff_log.push_back("Ошибка сохранения, недостаточно данных для создания спрайта");
+																  filed_exept();
 #endif
 																  return 1;
 															  }
@@ -4221,6 +4263,7 @@ int save_script()
 #ifdef LOG_SAVE
 																	   buff_log.push_back(snos);
 																	   buff_log.push_back("Ошибка сохранения, неизвестное имя спрайта");
+																	   filed_exept();
 #endif
 																	   return 1;
 																	   break;
@@ -4248,6 +4291,7 @@ int save_script()
 #ifdef LOG_SAVE
 																   buff_log.push_back(snos);
 																   buff_log.push_back("Ошибка сохранения, неизвестное дейсвие спрайта");
+																   filed_exept();
 #endif
 																   return 1;
 																   break;
@@ -4259,7 +4303,8 @@ int save_script()
 												default:
 #ifdef LOG_SAVE
 													buff_log.push_back(snos);
-													buff_log.push_back("Ошибка сохранения, неизвестное взаимодейсвие с объектом");													
+													buff_log.push_back("Ошибка сохранения, неизвестное взаимодейсвие с объектом");			
+													filed_exept();
 #endif							
 													return 1;
 													break;
@@ -4304,7 +4349,15 @@ int save_script()
 															 else if (sign(n, i)->my_action == HIDE_BOX)
 																 buff.push_back(0x02);
 															 else
+															 {
+
+#ifdef LOG_SAVE
+																 buff_log.push_back(snos);
+																 buff_log.push_back("Ошибка сохранения, неизвестный экшон фона текста");
+																 filed_exept();
+#endif		
 																 return 1;
+															 }
 
 															 size_obj += 2;//на 2 у экшона
 															 break;
@@ -4313,7 +4366,9 @@ int save_script()
 #ifdef LOG_SAVE
 												  buff_log.push_back(snos);
 												  buff_log.push_back("Ошибка сохранения, неизвестное взаимодейсвие с объектом");
+												  filed_exept();
 #endif
+												  return 1;
 												  break;
 											  }
 											  break;
@@ -4339,8 +4394,8 @@ int save_script()
 												   buff.push_back(0x02);//байт типа взаимодействия
 												   if (sign(n, i)->data1 != "" && sign(n, i)->data2 != "")
 												   {
-													   buff.push_back(string_to_int(sign(n, i)->data1)); //байт подтипа объекта
-													   buff.push_back(string_to_int(sign(n, i)->data2)); //байт номера аудишки
+													   buff.push_back(string_to_int(sign(n, i)->data1)+1); //байт подтипа объекта
+													   buff.push_back(string_to_int(sign(n, i)->data2)+1); //байт номера аудишки
 													   size_obj += 3;
 												   }
 												   else
@@ -4348,6 +4403,7 @@ int save_script()
 #ifdef LOG_SAVE
 													   buff_log.push_back(snos);
 													   buff_log.push_back("Ошибка сохранения, нет данных файла");
+													   filed_exept();
 #endif
 													   return 1;
 												   }
@@ -4357,6 +4413,7 @@ int save_script()
 #ifdef LOG_SAVE
 												   buff_log.push_back(snos);
 												   buff_log.push_back("Ошибка сохранения, неизвестное взаимодейсвие с объектом");
+												   filed_exept();
 #endif
 												   return 1;
 											   }
@@ -4426,12 +4483,12 @@ int load_script()
 	cur_page_count = 0;//отчищаем что возможно
 	cur_page = 0;
 
-	ifstream file("cus_script.dat", ios::binary);
+	ifstream file(dir_load_script + "cus_script.dat", ios::binary);
 
 
 
 #ifdef LOG_LOAD
-	ofstream log("cus_script_load.log", ios::binary);
+	ofstream log(dir_load_script + "cus_script_load.log", ios::binary);
 	vector<string>buff_log;
 	string snos = string({ 0x0A }) + string({ 0x0D });
 #endif
@@ -4446,7 +4503,13 @@ int load_script()
 		cur_bite = static_cast<unsigned char>(temp);
 		n++;
 		if (file.eof())
-			return 1;//недолжны приходить в конец
+		{
+#ifdef LOG_LOAD
+			buff_log.push_back(snos);
+			buff_log.push_back("Конец файла");
+#endif
+			return 1;
+		}//недолжны приходить в конец
 		return 0;
 	});
 
@@ -4620,6 +4683,7 @@ int load_script()
 																			 break;
 										   }
 										   default:
+											   filed_exept();
 											   return 1;
 											   break;
 										   }
@@ -4641,6 +4705,7 @@ int load_script()
 																			  break;
 											}
 											default:
+												filed_exept();
 												return 1;
 												break;
 											}
@@ -4652,7 +4717,7 @@ int load_script()
 										  {
 										  case type_interactions::swich:
 										  {
-																		   size_cur_type = 8;
+																		   size_cur_type = 5;
 																		   break;
 										  }
 										  case type_interactions::action:
@@ -4662,6 +4727,7 @@ int load_script()
 																			break;
 										  }
 										  default:
+											  filed_exept();
 											  return 1;
 											  break;
 										  }
@@ -4678,12 +4744,14 @@ int load_script()
 																			 break;
 										   }
 										   default:
+											   filed_exept();
 											   return 1;
 											   break;
 										   }
 										   break;
 				}
 				default:
+					filed_exept();
 					return 1;
 					break;
 				}
@@ -4697,6 +4765,7 @@ int load_script()
 					else
 						buff_log.push_back("Ошибка - нехватка байтов описания " + to_string(file.tellg()));
 #endif
+					filed_exept();
 					return 1;
 				}
 
@@ -4711,7 +4780,10 @@ int load_script()
 										   case type_interactions::swich:
 										   {
 																			if (Get_cur_bite() == 1)
+																			{
+																				filed_exept();
 																				return 1;
+																			}
 																			if (cur_bite == 0x01)
 																			{
 																				cur_obj.my_swich = SIMPLE;
@@ -4725,13 +4797,17 @@ int load_script()
 #ifdef LOG_LOAD
 																				buff_log.push_back(snos);
 																				buff_log.push_back("Неизвестный тип свича по байту " + to_string(file.tellg()));
+																				filed_exept();
 #endif
 																				return 1;//неизвестный байт подтипа
 																			}
 
 
 																			if (Get_cur_bite() == 1)
+																			{
+																				filed_exept();
 																				return 1;
+																			}
 																			if (cur_bite == 0x01)
 																			{
 																				cur_obj.data1 = "BG";
@@ -4745,13 +4821,17 @@ int load_script()
 #ifdef LOG_LOAD
 																				buff_log.push_back(snos);
 																				buff_log.push_back("Неизвестный тип дирректории по байту " + to_string(file.tellg()));
+																				filed_exept();
 #endif
 																				return 1;//неизвестный тип
 																			}
 
 
 																			if (Get_cur_bite() == 1)
+																			{
+																				filed_exept();
 																				return 1;
+																			}
 																			cur_obj.data2 = std::to_string(static_cast<int>(cur_bite));//нужна проверка на предел картинок
 
 
@@ -4761,7 +4841,10 @@ int load_script()
 										   case type_interactions::action:
 										   {
 																			 if (Get_cur_bite() == 1)
+																			 {
+																				 filed_exept();
 																				 return 1;
+																			 }
 
 																			 if (cur_bite == 0x01)
 																			 {
@@ -4771,12 +4854,21 @@ int load_script()
 																			 {
 																				 cur_obj.my_action = type_action::PUNCH;
 																			 }
+																			 else if (cur_bite == 0x03)
+																			 {
+																				 cur_obj.my_action = type_action::BLACK_IN;
+																			 }
+																			 else if (cur_bite == 0x04)
+																			 {
+																				 cur_obj.my_action = type_action::BLACK_OUT;
+																			 }
 																			 else
 																			 {
 #ifdef LOG_LOAD
 																				 buff_log.push_back(snos);
 																				 buff_log.push_back("Неизвестный тип экшона по байту" + to_string(file.tellg()));
 #endif
+																				 filed_exept();
 																				 return 1;//неизвестный байт подтипа
 																			 }
 
@@ -4784,6 +4876,7 @@ int load_script()
 																			 break;
 										   }
 										   default:
+											   filed_exept();
 											   return 1;
 											   break;
 										   }
@@ -4877,6 +4970,7 @@ int load_script()
 													buff_log.push_back(snos);
 													buff_log.push_back("Неизвестный тип персонажа по байту " + to_string(file.tellg()));
 #endif
+													filed_exept();
 													return 1;
 													break;
 												}
@@ -4887,15 +4981,24 @@ int load_script()
 											case type_interactions::swich:
 											{
 																			 if (Get_cur_bite() == 1)
-																				 return 1;
+																			 {
+																				 filed_exept();
+																				 return 1; 
+																			 }
 																			
 																			 if (Get_name_bite() == 1)// имя спрайта как цифра
-																				 return 1;																 
+																			 {
+																				 filed_exept();
+																				 return 1;
+																			 }
 
 
 
 																			 if (Get_cur_bite() == 1)
+																			 {
+																				 filed_exept();
 																				 return 1;
+																			 }
 
 																			 switch (cur_bite)
 																			 {
@@ -4954,6 +5057,7 @@ int load_script()
 																				 buff_log.push_back(snos);
 																				 buff_log.push_back("Неизвестный тип текстуры спрайта по байту " + to_string(file.tellg()));
 #endif
+																				 filed_exept();
 																				 return 1;
 																				 break;
 																			 }
@@ -4967,7 +5071,10 @@ int load_script()
 																				 buff_log.push_back("Тип текстуры " + cur_obj.data1);
 #endif
 																				 if (Get_cur_bite() == 1)
+																				 {
+																					 filed_exept();
 																					 return 1;
+																				 }
 
 																				 if (cur_bite > 0x03 || cur_bite < 0x01)
 																				 {
@@ -4975,6 +5082,7 @@ int load_script()
 																					 buff_log.push_back(snos);
 																					 buff_log.push_back("Неизвестный номер текстуры по байту " + to_string(file.tellg()));
 #endif
+																					 filed_exept();
 																					 return 1;//нет такой текстуры																				 
 																				 }
 
@@ -4986,7 +5094,10 @@ int load_script()
 
 
 																				 if (Get_cur_bite() == 1)
+																				 {
+																					 filed_exept();
 																					 return 1;
+																				 }
 																				 cur_obj.data3 = std::to_string(int(cur_bite)); //номер эмоции типа
 #ifdef LOG_LOAD
 																				 buff_log.push_back(" Эмоция " + cur_obj.data3);
@@ -4997,11 +5108,15 @@ int load_script()
 																					 buff_log.push_back(snos);
 																					 buff_log.push_back(" Неизвестная эмоция по байту " + to_string(file.tellg()));
 #endif
+																					 filed_exept();
 																					 return 1;//нет такой текстуры
 																				 }
 
 																				 if (Get_cur_bite() == 1)
+																				 {
+																					 filed_exept();
 																					 return 1;
+																				 }
 
 																				 switch (cur_bite)
 																				 {
@@ -5045,12 +5160,16 @@ int load_script()
 																					 buff_log.push_back(snos);
 																					 buff_log.push_back("Неизвестная позиция по байту " + to_string(file.tellg()));
 #endif
+																					 filed_exept();
 																					 return 1;
 																					 break;
 																				 }
 
 																				 if (Get_cur_bite() == 1)
+																				 {
+																					 filed_exept();
 																					 return 1;
+																				 }
 
 																				 switch (cur_bite)//его свич
 																				 {//LTR, RTL, SIMPLE
@@ -5068,6 +5187,7 @@ int load_script()
 																					 buff_log.push_back(snos);
 																					 buff_log.push_back("Неизвестный тип свича по байту " + to_string(file.tellg()));
 #endif
+																					 filed_exept();
 																					 return 1;
 																					 break;
 																				 }
@@ -5079,16 +5199,31 @@ int load_script()
 																				 buff_log.push_back("Пропадает");
 #endif
 																				 //пропуск пустых байтов - ибо спрайт пропадает
-																			 if (Get_cur_bite() == 1)
-																				 return 1;
-																			 if (Get_cur_bite() == 1)
-																				 return 1;
-																			 if (Get_cur_bite() == 1)
-																				 return 1;
-																			 if (Get_cur_bite() == 1)
-																				 return 1;
-																			 if (Get_cur_bite() == 1)
-																				 return 1;
+																				 if (Get_cur_bite() == 1)
+																				 {
+																					 filed_exept();
+																					 return 1;
+																				 }
+																				 if (Get_cur_bite() == 1)
+																				 {
+																					 filed_exept();
+																					 return 1;
+																				 }
+																				 if (Get_cur_bite() == 1)
+																				 {
+																					 filed_exept();
+																					 return 1;
+																				 }
+																				 if (Get_cur_bite() == 1)
+																				 {
+																					 filed_exept();
+																					 return 1;
+																				 }
+																				 if (Get_cur_bite() == 1)
+																				 {
+																					 filed_exept();
+																					 return 1;
+																				 }
 																			 }
 																				
 																			 
@@ -5097,12 +5232,21 @@ int load_script()
 											case type_interactions::action:
 											{
 																			  if (Get_cur_bite() == 1)
+																			  {
+																				  filed_exept();
 																				  return 1;
+																			  }
 																			  if (Get_name_bite() == 1)// имя спрайта как цифра
+																			  {
+																				  filed_exept();
 																				  return 1;
+																			  }
 
 																			  if (Get_cur_bite() == 1)
+																			  {
+																				  filed_exept();
 																				  return 1;
+																			  }
 																			  switch (cur_bite)//байт подтипа взаимодействия
 																			  {
 																			  case 0x01:
@@ -5121,6 +5265,7 @@ int load_script()
 																				  cur_obj.my_action = scale_big;
 																				  break;
 																			  default:
+																				  filed_exept();
 																				  return 1;
 																				  break;
 																			  }
@@ -5128,6 +5273,7 @@ int load_script()
 																			  break;
 											}
 											default:
+												filed_exept();
 												return 1;
 												break;
 											}
@@ -5140,22 +5286,34 @@ int load_script()
 										  case type_interactions::swich://ПОКА НЕ ПРОВЕРЕНЫЙ ВАРИАНТ ВЗЯТИЯ ТЕКСТА ИЗ СКРИПТА
 										  {
 																			if (Get_cur_bite() == 1)
+																			{
+																				filed_exept();
 																				return 1;
+																			}
 																			int size_name = cur_bite;
 																			for (int n = 1; n < size_name; n++)
 																			{
 																				if (Get_cur_bite() == 1)
+																				{
+																					filed_exept();
 																					return 1;
+																				}
 																				cur_obj.data1 += cur_bite;
 																			}
 
 																			if (Get_cur_bite() == 1)
+																			{
+																				filed_exept();
 																				return 1;
+																			}
 																			int size_text = cur_bite;
 																			for (int n = 1; n < size_text; n++)
 																			{
 																				if (Get_cur_bite() == 1)
+																				{
+																					filed_exept();
 																					return 1;
+																				}
 																				cur_obj.data2 += cur_bite;
 																			}
 
@@ -5164,7 +5322,10 @@ int load_script()
 										  case type_interactions::action:
 										  {
 																			if (Get_cur_bite() == 1)
+																			{
+																				filed_exept();
 																				return 1;
+																			}
 																			if (cur_bite == 0x01)
 																			{
 																				cur_obj.my_action = SHOW_BOX;
@@ -5175,10 +5336,15 @@ int load_script()
 																			}
 
 																			else
+																			{
+																				filed_exept();
 																				return 1;
+																			}
+																				
 																			break;
 										  }
 										  default:
+											  filed_exept();
 											  return 1;
 											  break;
 										  }
@@ -5191,22 +5357,32 @@ int load_script()
 										   case type_interactions::action:
 										   {
 																			 if (Get_cur_bite() == 1)
+																			 {
+																				 filed_exept();
 																				 return 1;
-																			 cur_obj.data1 = to_string(int(cur_bite));//байт подтипа объекта НЕТ ПРОВЕРКИ
+																			 }
+																			 cur_obj.data1 = to_string(int(cur_bite)-1);//байт подтипа объекта НЕТ ПРОВЕРКИ
 
 
 																			 if (Get_cur_bite() == 1)
+																			 {
+																				 filed_exept();
 																				 return 1;
-																			 cur_obj.data2 = to_string(int(cur_bite));//байт номера аудишки НЕТ ПРОВЕРКИ																			 
+																			 }
+																			 cur_obj.data2 = to_string(int(cur_bite)-1);//байт номера аудишки НЕТ ПРОВЕРКИ																			 
 																			 break;
 										   }
 										   default:
-											   return 1;
+										   { 
+													  filed_exept();
+													  return 1;
+										   }
 											   break;
 										   }
 										   break;
 				}
 				default:
+					filed_exept();
 					return 1;
 					break;
 				}
@@ -5322,7 +5498,6 @@ void init_game_mode(Node *Creator_Mode)
 		vector <type_interactions> intrs;
 		vector<type_swich> swichs;
 		vector<type_action> actions;
-		text_box* text{};
 
 		for (int n = 0; n < gpi()->cur_box_count; n++)
 		{
@@ -5554,7 +5729,7 @@ void init_game_mode(Node *Creator_Mode)
 
 		if (objs.size() != 0)
 		{
-			all_pages[n] = new Page(objs, objs_type, intrs, swichs, actions, text);
+			all_pages[n] = new Page(objs, objs_type, intrs, swichs, actions);
 		}
 	}
 
@@ -5813,10 +5988,12 @@ void MAINBOX::creatorset()
 	//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 	//ACTION
-	static ui::Button *action_scene_choise[2]// надстройки свича сцены
+	static ui::Button *action_scene_choise[4]// надстройки свича сцены
 	{
 			static_cast<ui::Button*>(choises[3]->getChildByTag(1)), //тряска
-			static_cast<ui::Button*>(choises[3]->getChildByTag(2)) //One punch
+			static_cast<ui::Button*>(choises[3]->getChildByTag(2)), //One punch
+			static_cast<ui::Button*>(choises[3]->getChildByTag(3)), // BLACK_IN
+			static_cast<ui::Button*>(choises[3]->getChildByTag(4)) //BLACK_OUT
 	};
 
 	//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -7194,6 +7371,19 @@ void MAINBOX::creatorset()
 		creator_obj->my_action = PUNCH;
 		update_inf();
 	});
+
+	action_scene_choise[2]->addClickEventListener([=](Ref*)
+	{
+		creator_obj->my_action = BLACK_IN;
+		update_inf();
+	});
+
+	action_scene_choise[3]->addClickEventListener([=](Ref*)
+	{
+		creator_obj->my_action = BLACK_OUT;
+		update_inf();
+	});
+
 	////////////////////////////////////////////////////////
 	//SWICH SPRITE
 	swich_sprite_choise_chater[0]->addClickEventListener([=](Ref*)
@@ -7500,23 +7690,23 @@ void MAINBOX::creatorset()
 	choise_audio_music->addClickEventListener([=](Ref*)
 	{
 		creator_obj->data1 = "0";
-		creator_obj->data2 = "";
+		creator_obj->data2 = "18";
 		update_inf();
 	});
 
 	choise_audio_sound->addClickEventListener([=](Ref*)
 	{
 		creator_obj->data1 = "1";
-		creator_obj->data2 = "";
+		creator_obj->data2 = "18";
 		update_inf();
 	});
 
 
-	for (int n = 0; n < 17; n++)
+	for (int n = 0; n < 18; n++)
 	{
 		static_cast<ui::Button*>(choise_music_dirs->getChildByTag(n+1))->addClickEventListener([=](Ref*)
 		{
-			creator_obj->data2 = (n + 1);
+			creator_obj->data2 = to_string(n + 1);
 			update_inf();
 		});
 	}
@@ -7572,7 +7762,7 @@ void MAINBOX::creatorset()
 			vector <type_interactions> intrs;
 			vector<type_swich> swichs;
 			vector<type_action> actions;
-			text_box* text{};
+			
 
 			Label_text->setString("");
 			Label_name->setString("");
@@ -7742,7 +7932,7 @@ void MAINBOX::creatorset()
 												   {
 
 																  int cur_type = string_to_int(sign(n, i)->data1);
-																  auto cur_dir = sign(n, i)->data2;
+																  string cur_dir = sign(n, i)->data2;
 																  if (cur_type <0 || cur_type>1)
 																	  break;
 
@@ -7806,7 +7996,7 @@ void MAINBOX::creatorset()
 
 			if (objs.size() != 0)
 			{
-				all_pages[cur_page] = new Page(objs, objs_type, intrs, swichs, actions, text);
+				all_pages[cur_page] = new Page(objs, objs_type, intrs, swichs, actions);
 				all_pages[cur_page]->draw();
 			}
 		}

@@ -65,11 +65,11 @@ namespace Action_mixed
 					  }
 					  break;
 		}
-		case PUNCH:
+		case PUNCH://тряска и белый экран
 		{
+					  auto White_screen = Game_Mode->getChildByName("White_screen");
 					  if (wait == false)
 					  {
-						  auto White_screen = Game_Mode->getChildByName("White_screen");
 						  White_screen->runAction(Sequence::create(FadeIn::create(0.05f), DelayTime::create(0.05f), FadeOut::create(0.05f), nullptr));
 						  cur->runAction(Sequence::create(
 							  DelayTime::create(0.2f),
@@ -84,7 +84,6 @@ namespace Action_mixed
 					  }
 					  else
 					  {
-						  auto White_screen = Game_Mode->getChildByName("White_screen");
 						  White_screen->runAction(Sequence::create(FadeIn::create(0.05f), DelayTime::create(0.05f), FadeOut::create(0.05f), nullptr));
 						  cur->runAction(Sequence::create(
 							  DelayTime::create(0.2f),
@@ -98,6 +97,35 @@ namespace Action_mixed
 					  }
 
 					  break;
+		}
+		case BLACK_IN://темный экран появляется
+		{
+						  auto Black_screen = Game_Mode->getChildByName("Black_screen");
+						  if (wait == false)
+						  {
+							  Black_screen->runAction(Sequence::create((FadeIn::create(1.f)), nullptr));
+							  Game_Mode->runAction(choise);
+						  }
+						  else
+						  {
+							  Black_screen->runAction(Sequence::create((FadeIn::create(1.f)), choise, nullptr));
+						  }
+		}
+		break;
+		case BLACK_OUT://темный экран пропадает
+		{
+						   auto Black_screen = Game_Mode->getChildByName("Black_screen");
+						   if (wait == false)
+						   {
+							   Black_screen->runAction(Sequence::create((choise, FadeOut::create(1.f)), nullptr));
+							   Game_Mode->runAction(choise);
+						   }
+						   else
+						   {
+							   Black_screen->runAction(Sequence::create((FadeOut::create(1.f)), choise, nullptr));
+							 
+						   }
+						   break;
 		}
 		default:
 			break;
@@ -169,7 +197,6 @@ namespace Action_scene
 					  
 					  break;
 		}
-			
 		case SIMPLE:
 			Action_mixed::swish(cur_old, cur_new, wait, next);
 		default:

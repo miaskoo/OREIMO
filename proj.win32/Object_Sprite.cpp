@@ -5,6 +5,7 @@ static const int cout_anim = 3; //количество позиций спрайт - глаза - рот
 static const int cout_sprite = 6; // максимальное количество используемых спрайтов
 
 
+
 map <int, Node** > index_sprite{ 
 	{ 0, &Sprite1 }, { 1, &Sprite2 }, { 2, &Sprite3 },
 	{ 3, &Sprite4 }, { 4, &Sprite5 }, { 5, &Sprite6 } 
@@ -37,7 +38,7 @@ static map<any_enum::name_sprite, int> POS_HEIGHT{
 };
 
 map<string, std::array<positions, 3>> POS_AY{
-	{ "C", { { { 0, 0 }, { 69 + 134, 378 }, { 107+134, 361 } } } },
+	{ "C", { { { 0, 0 }, { 203, 378 }, { 241, 361 } } } },
 	{ "L", { { { 0, 0 }, { 191, 374 }, { 234, 363 } } } },
 	{ "R", { { { 0, 0 }, { 217, 372 }, { 252, 366 } } } }
 };
@@ -95,13 +96,13 @@ map<string, std::array<positions, 3>> POS_SE{
 map<string, std::array<positions, 3>> POS_YO{
 	{ "C", { { { 0, 0 }, { 73 + 151, 407 }, { 97 + 151, 367 } } } }
 };
-
+int smeh_creator = 200;
 static map<any_enum::posicion_sprite, positions> POS_HEAD{
-	{ any_enum::centr, { 0, 0 } },
-	{ any_enum::left, { -426, 0 } },
-	{ any_enum::left_centr, { -213, 0 } },
-	{ any_enum::right, { 426, 0 } },
-	{ any_enum::right_centr, { 213, 0 } }
+	{ any_enum::centr, { 0 + smeh_creator, 0 } },
+	{ any_enum::left, { -426 + smeh_creator, 0 } },
+	{ any_enum::left_centr, { -213 + smeh_creator, 0 } },
+	{ any_enum::right, { 426 + smeh_creator, 0 } },
+	{ any_enum::right_centr, { 213 + smeh_creator, 0 } }
 };
 
 Object_Sprtite::Object_Sprtite(any_enum::name_sprite chapter_name, string type_sprite, int num_sprite, int num_face) : Object_Scene()// сгенерить данные спрайта и его координаты

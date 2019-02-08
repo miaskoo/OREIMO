@@ -8,7 +8,7 @@ class Page;
 extern Node *Game_Mode;
 extern Node *Text_Box;
 enum type_swich{ LTR, RTL, SIMPLE, POLOS };
-enum type_action{ MINIJUMP, JUMP, SHAKE, PUNCH, Zzzzz, scale_lit, scale_mid, scale_big, SHOW_BOX, HIDE_BOX, UNLOCK_ORE };
+enum type_action{ MINIJUMP, JUMP, SHAKE, PUNCH, Zzzzz, scale_lit, scale_mid, scale_big, SHOW_BOX, HIDE_BOX, UNLOCK_ORE, BLACK_IN, BLACK_OUT };
 
 
 namespace Action_mixed

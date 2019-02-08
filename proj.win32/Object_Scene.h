@@ -44,10 +44,10 @@ extern map< Node**, bool> unlock_parent;
 extern  array<Node**, 8> all_nodes;
 
 
-extern Node *Custom_Node;
-extern Node *Custom_Node_old;
-extern const int Custom_Tag;
-extern const int Custom_Tag_old;
+//extern Node *Custom_Node;
+//extern Node *Custom_Node_old;
+//extern const int Custom_Tag;
+//extern const int Custom_Tag_old;
 
 class Object_Scene
 {

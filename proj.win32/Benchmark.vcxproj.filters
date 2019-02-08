@@ -31,9 +31,6 @@
     <Filter Include="src\Main\Scrips">
       <UniqueIdentifier>{5a9a3d3e-3c01-4e2e-bd76-e9dac74a96e5}</UniqueIdentifier>
     </Filter>
-    <Filter Include="src\Old code">
-      <UniqueIdentifier>{9b841299-172f-4a6d-acbe-e12839ce712b}</UniqueIdentifier>
-    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -122,9 +119,6 @@
     </ClCompile>
     <ClCompile Include="Object_ORE.cpp">
       <Filter>src\Main\Objects</Filter>
-    </ClCompile>
-    <ClCompile Include="Object_box.cpp">
-      <Filter>src\Old code</Filter>
     </ClCompile>
     <ClCompile Include="Object_Condition.cpp">
       <Filter>src\Main\Objects</Filter>
@@ -238,9 +232,6 @@
     </ClInclude>
     <ClInclude Include="Object_ORE.h">
       <Filter>src\Main\Objects</Filter>
-    </ClInclude>
-    <ClInclude Include="Object_Box.h">
-      <Filter>src\Old code</Filter>
     </ClInclude>
     <ClInclude Include="Object_Condition.h">
       <Filter>src\Main\Objects</Filter>
