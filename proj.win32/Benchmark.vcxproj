@@ -25,6 +25,7 @@
     <PlatformToolset Condition="'$(VisualStudioVersion)' == '11.0' and exists('$(MSBuildProgramFiles32)\Microsoft SDKs\Windows\v7.1A')">v110_xp</PlatformToolset>
     <PlatformToolset Condition="'$(VisualStudioVersion)' == '12.0'">v120</PlatformToolset>
     <PlatformToolset Condition="'$(VisualStudioVersion)' == '12.0' and exists('$(MSBuildProgramFiles32)\Microsoft SDKs\Windows\v7.1A')">v120_xp</PlatformToolset>
+    <PlatformToolset>v120</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
@@ -34,6 +35,7 @@
     <PlatformToolset Condition="'$(VisualStudioVersion)' == '11.0' and exists('$(MSBuildProgramFiles32)\Microsoft SDKs\Windows\v7.1A')">v110_xp</PlatformToolset>
     <PlatformToolset Condition="'$(VisualStudioVersion)' == '12.0'">v120</PlatformToolset>
     <PlatformToolset Condition="'$(VisualStudioVersion)' == '12.0' and exists('$(MSBuildProgramFiles32)\Microsoft SDKs\Windows\v7.1A')">v120_xp</PlatformToolset>
+    <PlatformToolset>v120</PlatformToolset>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings">
@@ -56,8 +58,8 @@
     <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">OREIMO</OutDir>
     <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">OREIMO_S</IntDir>
     <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</LinkIncremental>
-    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(SolutionDir)$(Configuration).win32\</OutDir>
-    <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(Configuration).win32\</IntDir>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">OREIMO</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">OREIMO_S</IntDir>
     <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</LinkIncremental>
     <CodeAnalysisRuleSet Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">AllRules.ruleset</CodeAnalysisRuleSet>
     <CodeAnalysisRules Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" />
@@ -69,15 +71,17 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LibraryPath>D:\SARANCHA\ORETESTO\IOS\OREIMO\proj.win32\OREIMO;$(MSBuildProgramFiles32)\Microsoft SDKs\Windows\v7.1A\lib;$(LibraryPath)</LibraryPath>
     <IncludePath>D:\SARANCHA\ORETESTO\IOS\OREIMO\Classes;D:\SARANCHA\ORETESTO\IOS\OREIMO\proj.win32;$(IncludePath)</IncludePath>
+    <TargetName>OREIMO</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <LibraryPath>$(MSBuildProgramFiles32)\Microsoft SDKs\Windows\v7.1A\lib;$(LibraryPath)</LibraryPath>
-    <IncludePath>C:\Users\miaskoo\Downloads\ORETEST\IOS\OREIMO\proj.win32;C:\Users\miaskoo\Downloads\ORETEST\IOS\OREIMO\Classes;..\..\..\include;..\..\..\framework;$(IncludePath)</IncludePath>
+    <LibraryPath>D:\SARANCHA\ORETESTO\IOS\OREIMO\proj.win32\OREIMO;$(MSBuildProgramFiles32)\Microsoft SDKs\Windows\v7.1A\lib;$(LibraryPath)</LibraryPath>
+    <IncludePath>C:\Users\miaskoo\Downloads\ORETEST\IOS\OREIMO\proj.win32;C:\Users\miaskoo\Downloads\ORETEST\IOS\OREIMO\Classes;..\..\..\include;..\..\..\framework;C:\Users\User\Downloads\ImageMagick-windows\ImageMagick-7.0.2-0\VisualMagick\bin;$(IncludePath)</IncludePath>
+    <TargetName>OREIMO</TargetName>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <Optimization>Disabled</Optimization>
-      <AdditionalIncludeDirectories>$(EngineRoot)cocos\audio\include;$(EngineRoot)external;$(EngineRoot)external\chipmunk\include\chipmunk;$(EngineRoot)extensions;..\Classes;..;%(AdditionalIncludeDirectories);$(_COCOS_HEADER_WIN32_BEGIN);$(_COCOS_HEADER_WIN32_END)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(EngineRoot)cocos\audio\include;D:\SARANCHA\ORETESTO\IOS\OREIMO\Classes\ImageMagick-6.9.10-Q16\include;$(EngineRoot)external;$(EngineRoot)external\chipmunk\include\chipmunk;$(EngineRoot)extensions;..\Classes;..;%(AdditionalIncludeDirectories);$(_COCOS_HEADER_WIN32_BEGIN);$(_COCOS_HEADER_WIN32_END)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_USE_MATH_DEFINES;GL_GLEXT_PROTOTYPES;CC_ENABLE_CHIPMUNK_INTEGRATION=1;COCOS2D_DEBUG=1;_CRT_SECURE_NO_WARNINGS;_SCL_SECURE_NO_WARNINGS;L2D_TARGET_WIN_GL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <MinimalRebuild>false</MinimalRebuild>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
@@ -90,12 +94,13 @@
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>%(AdditionalDependencies);$(_COCOS_LIB_WIN32_BEGIN);$(_COCOS_LIB_WIN32_END);live2d_opengl.lib</AdditionalDependencies>
-      <OutputFile>$(OutDir)$(ProjectName).exe</OutputFile>
-      <AdditionalLibraryDirectories>$(OutDir);%(AdditionalLibraryDirectories);$(_COCOS_LIB_PATH_WIN32_BEGIN);$(_COCOS_LIB_PATH_WIN32_END);..\..\..\lib\windows\x86\120\Debug</AdditionalLibraryDirectories>
+      <AdditionalDependencies>%(AdditionalDependencies);$(_COCOS_LIB_WIN32_BEGIN);$(_COCOS_LIB_WIN32_END);live2d_opengl.lib;CORE_RL_magick_.lib;CORE_RL_Magick++_.lib;CORE_RL_wand_.lib</AdditionalDependencies>
+      <OutputFile>$(OutDir)OREIMO.exe</OutputFile>
+      <AdditionalLibraryDirectories>$(OutDir);%(AdditionalLibraryDirectories);$(_COCOS_LIB_PATH_WIN32_BEGIN);$(_COCOS_LIB_PATH_WIN32_END);..\..\..\lib\windows\x86\120\Debug;D:\SARANCHA\ORETESTO\IOS\OREIMO\Classes\ImageMagick-6.9.10-Q16\lib</AdditionalLibraryDirectories>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <SubSystem>Windows</SubSystem>
       <TargetMachine>MachineX86</TargetMachine>
+      <IgnoreSpecificDefaultLibraries>libcmt.lib;%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
     </Link>
     <PostBuildEvent>
       <Command>
@@ -109,9 +114,9 @@ xcopy "$(ProjectDir)..\Resources" "$(OutDir)" /D /E /I /F /Y</Command>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
-      <Optimization>MaxSpeed</Optimization>
+      <Optimization>Disabled</Optimization>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <AdditionalIncludeDirectories>$(EngineRoot)cocos\audio\include;$(EngineRoot)external;$(EngineRoot)external\chipmunk\include\chipmunk;$(EngineRoot)extensions;..\Classes;..;%(AdditionalIncludeDirectories);$(_COCOS_HEADER_WIN32_BEGIN);$(_COCOS_HEADER_WIN32_END)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(EngineRoot)cocos\audio\include;$(EngineRoot)external;$(EngineRoot)external\chipmunk\include\chipmunk;$(EngineRoot)extensions;..\Classes;..;%(AdditionalIncludeDirectories);$(_COCOS_HEADER_WIN32_BEGIN);$(_COCOS_HEADER_WIN32_END);D:\SARANCHA\ORETESTO\IOS\OREIMO\Classes\ImageMagick\Magick++\lib;D:\SARANCHA\ORETESTO\IOS\OREIMO\Classes\Live2D;D:\SARANCHA\ORETESTO\IOS\OREIMO\Classes;D:\SARANCHA\ORETESTO\IOS\OREIMO\proj.win32;D:\SARANCHA\ORETESTO\IOS\OREIMO\Classes\ImageMagick\</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;_USE_MATH_DEFINES;GL_GLEXT_PROTOTYPES;CC_ENABLE_CHIPMUNK_INTEGRATION=1;_CRT_SECURE_NO_WARNINGS;_SCL_SECURE_NO_WARNINGS;L2D_TARGET_WIN_GL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <FunctionLevelLinking>true</FunctionLevelLinking>
@@ -121,11 +126,12 @@ xcopy "$(ProjectDir)..\Resources" "$(OutDir)" /D /E /I /F /Y</Command>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <DisableSpecificWarnings>4267;4251;4244;%(DisableSpecificWarnings)</DisableSpecificWarnings>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <FavorSizeOrSpeed>Neither</FavorSizeOrSpeed>
     </ClCompile>
     <Link>
       <AdditionalDependencies>libcurl_imp.lib;websockets.lib;%(AdditionalDependencies);$(_COCOS_LIB_WIN32_BEGIN);$(_COCOS_LIB_WIN32_END);live2d_opengl.lib</AdditionalDependencies>
-      <OutputFile>$(OutDir)$(ProjectName).exe</OutputFile>
-      <AdditionalLibraryDirectories>$(OutDir);%(AdditionalLibraryDirectories);$(_COCOS_LIB_PATH_WIN32_BEGIN);$(_COCOS_LIB_PATH_WIN32_END);..\..\..\lib\windows\x86\120\Release</AdditionalLibraryDirectories>
+      <OutputFile>$(OutDir)OREIMO.exe</OutputFile>
+      <AdditionalLibraryDirectories>D:\SARANCHA\ORETESTO\IOS\OREIMO\Classes\Actions;D:\SARANCHA\ORETESTO\IOS\OREIMO\Classes\Dirs;D:\SARANCHA\ORETESTO\IOS\OREIMO\Classes\Head;D:\SARANCHA\ORETESTO\IOS\OREIMO\Classes\Live2D;D:\SARANCHA\ORETESTO\IOS\OREIMO\Classes\Objects;D:\SARANCHA\ORETESTO\IOS\OREIMO\Classes\Scripts;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <SubSystem>Windows</SubSystem>
       <OptimizeReferences>true</OptimizeReferences>
@@ -155,24 +161,27 @@ xcopy "$(ProjectDir)..\Resources" "$(OutDir)" /D /E /I /F /Y</Command>
     <ClCompile Include="..\..\..\framework\L2DTextureDesc.cpp" />
     <ClCompile Include="..\..\..\framework\L2DViewMatrix.cpp" />
     <ClCompile Include="..\..\..\framework\Live2DFramework.cpp" />
-    <ClCompile Include="..\Classes\AppDelegate.cpp" />
+    <ClCompile Include="..\Classes\Actions\Actions.cpp" />
+    <ClCompile Include="..\Classes\Dirs\COMMON_DIRS.cpp" />
+    <ClCompile Include="..\Classes\Dirs\Resourse.cpp" />
+    <ClCompile Include="..\Classes\Head\AppDelegate.cpp" />
+    <ClCompile Include="..\Classes\Head\main.cpp" />
+    <ClCompile Include="..\Classes\Head\Main_Menu.cpp" />
     <ClCompile Include="..\Classes\Live2D\LAppLive2DManager.cpp" />
     <ClCompile Include="..\Classes\Live2D\LAppModel.cpp" />
     <ClCompile Include="..\Classes\Live2D\LAppTextureDesc.cpp" />
     <ClCompile Include="..\Classes\Live2D\LAppView.cpp" />
     <ClCompile Include="..\Classes\Live2D\PlatformManager.cpp" />
-    <ClCompile Include="..\Classes\Main_Menu.cpp" />
-    <ClCompile Include="Actions.cpp" />
-    <ClCompile Include="COMMON_DIRS.cpp" />
-    <ClCompile Include="main.cpp" />
-    <ClCompile Include="Object_Condition.cpp" />
-    <ClCompile Include="Object_Noise.cpp" />
-    <ClCompile Include="Object_ORE.cpp" />
-    <ClCompile Include="Object_Scene.cpp" />
-    <ClCompile Include="Object_Sprite.cpp" />
-    <ClCompile Include="Object_Text.cpp" />
-    <ClCompile Include="Page.cpp" />
-    <ClCompile Include="Resourse.cpp" />
+    <ClCompile Include="..\Classes\Objects\Object_box.cpp" />
+    <ClCompile Include="..\Classes\Objects\Object_Condition.cpp" />
+    <ClCompile Include="..\Classes\Objects\Object_LIVE2D.cpp" />
+    <ClCompile Include="..\Classes\Objects\Object_Noise.cpp" />
+    <ClCompile Include="..\Classes\Objects\Object_ORE.cpp" />
+    <ClCompile Include="..\Classes\Objects\Object_Scene.cpp" />
+    <ClCompile Include="..\Classes\Objects\Object_Sprite.cpp" />
+    <ClCompile Include="..\Classes\Objects\Object_Teleport.cpp" />
+    <ClCompile Include="..\Classes\Objects\Object_Text.cpp" />
+    <ClCompile Include="..\Classes\Scripts\Page.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\framework\IPlatformManager.h" />
@@ -189,8 +198,12 @@ xcopy "$(ProjectDir)..\Resources" "$(OutDir)" /D /E /I /F /Y</Command>
     <ClInclude Include="..\..\..\framework\L2DTextureDesc.h" />
     <ClInclude Include="..\..\..\framework\L2DViewMatrix.h" />
     <ClInclude Include="..\..\..\framework\Live2DFramework.h" />
-    <ClInclude Include="..\Classes\AppDelegate.h" />
-    <ClInclude Include="..\Classes\Live2D\AppMacros.h" />
+    <ClInclude Include="..\Classes\Actions\Actions.h" />
+    <ClInclude Include="..\Classes\Dirs\COMMON_DIRS.h" />
+    <ClInclude Include="..\Classes\Dirs\Resourse.h" />
+    <ClInclude Include="..\Classes\Head\AppDelegate.h" />
+    <ClInclude Include="..\Classes\Head\main.h" />
+    <ClInclude Include="..\Classes\Head\Main_Menu.h" />
     <ClInclude Include="..\Classes\Live2D\LAppDefine.h" />
     <ClInclude Include="..\Classes\Live2D\LAppLive2DManager.h" />
     <ClInclude Include="..\Classes\Live2D\LAppModel.h" />
@@ -199,19 +212,17 @@ xcopy "$(ProjectDir)..\Resources" "$(OutDir)" /D /E /I /F /Y</Command>
     <ClInclude Include="..\Classes\Live2D\ModelSetting.h" />
     <ClInclude Include="..\Classes\Live2D\ModelSettingJson.h" />
     <ClInclude Include="..\Classes\Live2D\PlatformManager.h" />
-    <ClInclude Include="..\Classes\Main_Menu.h" />
-    <ClInclude Include="Actions.h" />
-    <ClInclude Include="COMMON_DIRS.h" />
-    <ClInclude Include="main.h" />
-    <ClInclude Include="Object_Condition.h" />
-    <ClInclude Include="Object_Noise.h" />
-    <ClInclude Include="Object_ORE.h" />
-    <ClInclude Include="Object_Scene.h" />
-    <ClInclude Include="Object_Sprite.h" />
-    <ClInclude Include="Object_Text.h" />
-    <ClInclude Include="Page.h" />
-    <ClInclude Include="Resourse.h" />
-    <ClInclude Include="Script.h" />
+    <ClInclude Include="..\Classes\Objects\Object_Box.h" />
+    <ClInclude Include="..\Classes\Objects\Object_Condition.h" />
+    <ClInclude Include="..\Classes\Objects\Object_LIVE2D.h" />
+    <ClInclude Include="..\Classes\Objects\Object_Noise.h" />
+    <ClInclude Include="..\Classes\Objects\Object_ORE.h" />
+    <ClInclude Include="..\Classes\Objects\Object_Scene.h" />
+    <ClInclude Include="..\Classes\Objects\Object_Sprite.h" />
+    <ClInclude Include="..\Classes\Objects\Object_Teleport.h" />
+    <ClInclude Include="..\Classes\Objects\Object_Text.h" />
+    <ClInclude Include="..\Classes\Scripts\Page.h" />
+    <ClInclude Include="..\Classes\Scripts\Script.h" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\..\cocos2d-x-3.5\cocos\2d\libcocos2d.vcxproj">

@@ -1,9 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <Filter Include="win32">
-      <UniqueIdentifier>{84a8ebd7-7cf0-47f6-b75e-d441df67da40}</UniqueIdentifier>
-    </Filter>
     <Filter Include="resource">
       <UniqueIdentifier>{715254bc-d70b-4ec5-bf29-467dd3ace079}</UniqueIdentifier>
     </Filter>
@@ -28,14 +25,14 @@
     <Filter Include="src\Main\Actions">
       <UniqueIdentifier>{59aff884-7cb8-4007-a8f2-61d7fad03fb3}</UniqueIdentifier>
     </Filter>
-    <Filter Include="src\Main\Scrips">
+    <Filter Include="src\Main\Head">
+      <UniqueIdentifier>{632be048-8d87-458a-bcca-612481e13add}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\Main\Scripts">
       <UniqueIdentifier>{5a9a3d3e-3c01-4e2e-bd76-e9dac74a96e5}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="main.cpp">
-      <Filter>win32</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\..\framework\L2DModelMatrix.cpp">
       <Filter>Live2D</Filter>
     </ClCompile>
@@ -72,8 +69,29 @@
     <ClCompile Include="..\..\..\framework\L2DMatrix44.cpp">
       <Filter>Live2D</Filter>
     </ClCompile>
-    <ClCompile Include="..\Classes\AppDelegate.cpp">
-      <Filter>src\Live2D</Filter>
+    <ClCompile Include="..\Classes\Objects\Object_Sprite.cpp">
+      <Filter>src\Main\Objects</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Classes\Objects\Object_Teleport.cpp">
+      <Filter>src\Main\Objects</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Classes\Objects\Object_Text.cpp">
+      <Filter>src\Main\Objects</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Classes\Objects\Object_box.cpp">
+      <Filter>src\Main\Objects</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Classes\Objects\Object_Condition.cpp">
+      <Filter>src\Main\Objects</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Classes\Objects\Object_Noise.cpp">
+      <Filter>src\Main\Objects</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Classes\Objects\Object_ORE.cpp">
+      <Filter>src\Main\Objects</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Classes\Objects\Object_Scene.cpp">
+      <Filter>src\Main\Objects</Filter>
     </ClCompile>
     <ClCompile Include="..\Classes\Live2D\LAppLive2DManager.cpp">
       <Filter>src\Live2D</Filter>
@@ -90,44 +108,32 @@
     <ClCompile Include="..\Classes\Live2D\PlatformManager.cpp">
       <Filter>src\Live2D</Filter>
     </ClCompile>
-    <ClCompile Include="..\Classes\Main_Menu.cpp">
-      <Filter>src\Main</Filter>
-    </ClCompile>
-    <ClCompile Include="Resourse.cpp">
+    <ClCompile Include="..\Classes\Dirs\Resourse.cpp">
       <Filter>src\Main\Dirs</Filter>
     </ClCompile>
-    <ClCompile Include="COMMON_DIRS.cpp">
+    <ClCompile Include="..\Classes\Dirs\COMMON_DIRS.cpp">
       <Filter>src\Main\Dirs</Filter>
     </ClCompile>
-    <ClCompile Include="Object_Scene.cpp">
-      <Filter>src\Main\Objects</Filter>
-    </ClCompile>
-    <ClCompile Include="Object_Noise.cpp">
-      <Filter>src\Main\Objects</Filter>
-    </ClCompile>
-    <ClCompile Include="Page.cpp">
-      <Filter>src\Main\Scrips</Filter>
-    </ClCompile>
-    <ClCompile Include="Actions.cpp">
+    <ClCompile Include="..\Classes\Actions\Actions.cpp">
       <Filter>src\Main\Actions</Filter>
     </ClCompile>
-    <ClCompile Include="Object_Sprite.cpp">
-      <Filter>src\Main\Objects</Filter>
+    <ClCompile Include="..\Classes\Scripts\Page.cpp">
+      <Filter>src\Main\Scripts</Filter>
     </ClCompile>
-    <ClCompile Include="Object_Text.cpp">
-      <Filter>src\Main\Objects</Filter>
+    <ClCompile Include="..\Classes\Head\Main_Menu.cpp">
+      <Filter>src\Main\Head</Filter>
     </ClCompile>
-    <ClCompile Include="Object_ORE.cpp">
-      <Filter>src\Main\Objects</Filter>
+    <ClCompile Include="..\Classes\Head\AppDelegate.cpp">
+      <Filter>src\Main\Head</Filter>
     </ClCompile>
-    <ClCompile Include="Object_Condition.cpp">
+    <ClCompile Include="..\Classes\Head\main.cpp">
+      <Filter>src\Main\Head</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Classes\Objects\Object_LIVE2D.cpp">
       <Filter>src\Main\Objects</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="main.h">
-      <Filter>win32</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\..\framework\L2DModelMatrix.h">
       <Filter>Live2D</Filter>
     </ClInclude>
@@ -170,11 +176,29 @@
     <ClInclude Include="..\..\..\framework\L2DMatrix44.h">
       <Filter>Live2D</Filter>
     </ClInclude>
-    <ClInclude Include="..\Classes\AppDelegate.h">
-      <Filter>src\Live2D</Filter>
+    <ClInclude Include="..\Classes\Objects\Object_Sprite.h">
+      <Filter>src\Main\Objects</Filter>
     </ClInclude>
-    <ClInclude Include="..\Classes\Live2D\AppMacros.h">
-      <Filter>src\Live2D</Filter>
+    <ClInclude Include="..\Classes\Objects\Object_Teleport.h">
+      <Filter>src\Main\Objects</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Classes\Objects\Object_Text.h">
+      <Filter>src\Main\Objects</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Classes\Objects\Object_Box.h">
+      <Filter>src\Main\Objects</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Classes\Objects\Object_Condition.h">
+      <Filter>src\Main\Objects</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Classes\Objects\Object_Noise.h">
+      <Filter>src\Main\Objects</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Classes\Objects\Object_ORE.h">
+      <Filter>src\Main\Objects</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Classes\Objects\Object_Scene.h">
+      <Filter>src\Main\Objects</Filter>
     </ClInclude>
     <ClInclude Include="..\Classes\Live2D\LAppDefine.h">
       <Filter>src\Live2D</Filter>
@@ -200,40 +224,31 @@
     <ClInclude Include="..\Classes\Live2D\PlatformManager.h">
       <Filter>src\Live2D</Filter>
     </ClInclude>
-    <ClInclude Include="..\Classes\Main_Menu.h">
-      <Filter>src\Main</Filter>
-    </ClInclude>
-    <ClInclude Include="COMMON_DIRS.h">
+    <ClInclude Include="..\Classes\Dirs\Resourse.h">
       <Filter>src\Main\Dirs</Filter>
     </ClInclude>
-    <ClInclude Include="Resourse.h">
+    <ClInclude Include="..\Classes\Dirs\COMMON_DIRS.h">
       <Filter>src\Main\Dirs</Filter>
     </ClInclude>
-    <ClInclude Include="Object_Noise.h">
-      <Filter>src\Main\Objects</Filter>
-    </ClInclude>
-    <ClInclude Include="Object_Scene.h">
-      <Filter>src\Main\Objects</Filter>
-    </ClInclude>
-    <ClInclude Include="Page.h">
-      <Filter>src\Main\Scrips</Filter>
-    </ClInclude>
-    <ClInclude Include="Script.h">
-      <Filter>src\Main\Scrips</Filter>
-    </ClInclude>
-    <ClInclude Include="Actions.h">
+    <ClInclude Include="..\Classes\Actions\Actions.h">
       <Filter>src\Main\Actions</Filter>
     </ClInclude>
-    <ClInclude Include="Object_Sprite.h">
-      <Filter>src\Main\Objects</Filter>
+    <ClInclude Include="..\Classes\Scripts\Page.h">
+      <Filter>src\Main\Scripts</Filter>
     </ClInclude>
-    <ClInclude Include="Object_Text.h">
-      <Filter>src\Main\Objects</Filter>
+    <ClInclude Include="..\Classes\Scripts\Script.h">
+      <Filter>src\Main\Scripts</Filter>
     </ClInclude>
-    <ClInclude Include="Object_ORE.h">
-      <Filter>src\Main\Objects</Filter>
+    <ClInclude Include="..\Classes\Head\main.h">
+      <Filter>src\Main\Head</Filter>
     </ClInclude>
-    <ClInclude Include="Object_Condition.h">
+    <ClInclude Include="..\Classes\Head\Main_Menu.h">
+      <Filter>src\Main\Head</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Classes\Head\AppDelegate.h">
+      <Filter>src\Main\Head</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Classes\Objects\Object_LIVE2D.h">
       <Filter>src\Main\Objects</Filter>
     </ClInclude>
   </ItemGroup>
