@@ -7,8 +7,7 @@
  */
 #include "LAppModel.h"
 
-#include <memory>
-#include <fstream>
+
 //Live2D Application
 #include "LAppDefine.h"
 
@@ -18,15 +17,18 @@
 #include "SimpleAudioEngine.h"
 #include "platform/CCImage.h"
 
+#include <PlatformManager.h>
+#include <Live2DFramework.h>
+#include <fstream>
 using namespace CocosDenshion;
 
 using namespace std;
 using namespace live2d;
 using namespace live2d::framework;
 USING_NS_CC;
+extern Node *LIVE2D_NODE_CREATE;
 
-
-LAppModel::LAppModel()
+LAppModel::LAppModel()//конструктор - обнуляет настройки моделей
 	:L2DBaseModel(),modelSetting(NULL)
 {
 	// モーションの開始時と終了時のログを出すことができます
@@ -45,17 +47,16 @@ LAppModel::~LAppModel(void)
 
 	for (int i = 0; i < modelSetting->getMotionGroupNum(); i++)
 	{
-		const char* group=modelSetting->getMotionGroupName(i);
-		releaseMotionGroup(group);
+		const char* group=modelSetting->getMotionGroupName(i);//получаем название группы motion
+		releaseMotionGroup(group);//отчищаем motion
 	}
-	expressions.clear();
-	delete modelSetting;
+	delete modelSetting; //удаляем информацию настроек модели
 }
 
 
 void LAppModel::load(const char dir[],const char fileName[])
 {
-	modelHomeDir = dir;
+	modelHomeDir = dir;//получаем дирректорию файла настроек модельки
     
     if(LAppDefine::DEBUG_LOG)log( "create model : %s",fileName);
     
@@ -63,21 +64,22 @@ void LAppModel::load(const char dir[],const char fileName[])
 	ssize_t size;
 	string path=fileName;
 	path=dir+path;
-    unsigned char* data=CCFileUtils::getInstance()->getFileData(path.c_str(),"rb", &size);
+    unsigned char* data=CCFileUtils::getInstance()->getFileData(path.c_str(),"rb", &size); //грузим данные из файла
     
-    ModelSetting* setting=new ModelSettingJson((const char*)data,size);
-	free(data);
-	init(setting);
+    ModelSetting* setting=new ModelSettingJson((const char*)data,size);//загружаем файл настроек модели
+	free(data);//освобождаем указатель 
+	init(setting);//иницилизируем модель
 }
+
 
 void LAppModel::init(ModelSetting* setting)
 {
-	updating=true;
-    initialized=false;
+	updating=true;//завершил апдейт?
+    initialized=false;//иницилизация?
 	
-	modelSetting=setting;
+	modelSetting=setting; //ставим инфу о модели из json
 	
-	//Live2D Model
+	//Live2D Model - грузим модельку, текстурки
 	if( strcmp( modelSetting->getModelFile() , "" ) != 0 )
     {
 		string path=modelSetting->getModelFile();
@@ -95,27 +97,22 @@ void LAppModel::init(ModelSetting* setting)
 		}
     }
 	
-    //Expression
+    //Expression - пресеты лица
 	if (modelSetting->getExpressionNum() > 0)
 	{
-		int len=modelSetting->getExpressionNum();
-		for (int i=0; i<len; i++)
+		int len = modelSetting->getExpressionNum();
+		for (int i = 0; i < len; i++)
 		{
-			string name=modelSetting->getExpressionName(i);
-			string file=modelSetting->getExpressionFile(i);
-			file=modelHomeDir+file;
-			if (dir_expression[name] != NULL)
-			{
-				delete expressions[name];
-				expressions[name] = NULL;
-			}
-			shared_ptr<string> temp_dir_expression(new string(file));
-			dir_expression[name.c_str()] = temp_dir_expression;
-			//loadExpression(name.c_str(), file.c_str());
+			string name = modelSetting->getExpressionName(i);
+			string file = modelSetting->getExpressionFile(i);
+			file = modelHomeDir + file;
+			loadExpression(name.c_str(), file.c_str());
+
+
 		}
 	}
 	
-	//Physics
+	//Physics - физику(волос например)
 	if( strcmp( modelSetting->getPhysicsFile(), "" ) != 0 )
     {
 		string path=modelSetting->getPhysicsFile();
@@ -123,7 +120,7 @@ void LAppModel::init(ModelSetting* setting)
         loadPhysics(path.c_str());
     }
 	
-	//Pose
+	//Pose - поза(можно изменять видимость различных групп элементов, для создания различных поз)
 	if( strcmp( modelSetting->getPoseFile() , "" ) != 0 )
     {
 		string path=modelSetting->getPoseFile();
@@ -131,43 +128,43 @@ void LAppModel::init(ModelSetting* setting)
         loadPose(path.c_str());
     }
 	
-	//Layout
+	//Layout - устанавливаем размеры, позиции
 	map<string, float> layout;
-	modelSetting->getLayout(layout);
-	modelMatrix->setupLayout(layout);
+	modelSetting->getLayout(layout);//???
+	modelMatrix->setupLayout(layout);//устанавливаем положения
 	
 	
-	for ( int i = 0; i < modelSetting->getInitParamNum(); i++)
+	for ( int i = 0; i < modelSetting->getInitParamNum(); i++)//???
 	{
 		live2DModel->setParamFloat(modelSetting->getInitParamID(i), modelSetting->getInitParamValue(i));
 	}
 	
-	for ( int i = 0; i < modelSetting->getInitPartsVisibleNum(); i++)
+	for ( int i = 0; i < modelSetting->getInitPartsVisibleNum(); i++)//настройка прозрачностей из настроек модельки
 	{
 		live2DModel->setPartsOpacity(modelSetting->getInitPartsVisibleID(i), modelSetting->getInitPartsVisibleValue(i));
 	}
 	
-	live2DModel->saveParam();
-	live2DModel->setPremultipliedAlpha(true);
+	live2DModel->saveParam();//сохраняем
+	live2DModel->setPremultipliedAlpha(true);//включает мультиплексинг альфа каналов?
 	
-	for (int i = 0; i < modelSetting->getMotionGroupNum(); i++)
+	for (int i = 0; i < modelSetting->getMotionGroupNum(); i++)//загружает все motion из настроек модельки
 	{
-		const char* group=modelSetting->getMotionGroupName(i);
-		preloadMotionGroup(group);
+		const char* group=modelSetting->getMotionGroupName(i);//получает название группы motion которое грузим
+		preloadMotionGroup(group);//грузит все
 	}
 	
-	mainMotionMgr->stopAllMotions();
+	mainMotionMgr->stopAllMotions();//стопит все анимации
 	
 	
 	
-    updating=false;
-    initialized=true;
+    updating=false;//можно апдейтить?
+    initialized=true;//инилизация завершена
 }
 
 
 void LAppModel::preloadMotionGroup(const char group[])
 {
-    int len = modelSetting->getMotionNum( group );
+    int len = modelSetting->getMotionNum( group );//узнает количество motion в группе
     for (int i = 0; i < len; i++)
 	{
 		std::stringstream ss;
@@ -181,17 +178,17 @@ void LAppModel::preloadMotionGroup(const char group[])
 
         if(LAppDefine::DEBUG_LOG)log("load motion name:%s ",name.c_str());
         
-		loadMotion(name.c_str(),path.c_str());
+		loadMotion(name.c_str(),path.c_str());//функция загрузки motion уже определена
 
-		const char* voice=modelSetting->getMotionSound(group,i);
-		if (strcmp( voice , "" ) != 0 )
-		{
-			string path=voice;
-			path=modelHomeDir+ path;
-			
+		//const char* voice=modelSetting->getMotionSound(group,i); - чекает есть ли у конкретной motion озвучка, и если есть грузит настройки для нее?
+		//if (strcmp( voice , "" ) != 0 )
+		//{
+		//	string path=voice;
+		//	path=modelHomeDir+ path;
+		//	
 	
-			SimpleAudioEngine::getInstance()->preloadEffect(path.c_str());
-		}
+		//	SimpleAudioEngine::getInstance()->preloadEffect(path.c_str());
+		//}
     }
 }
 
@@ -213,146 +210,81 @@ void LAppModel::releaseMotionGroup(const char group[])
 }
 
 
-void LAppModel::set_CustomAction()// расписанные движения туда сюда для глаз или пальцев
-{
-	// 5 - глаза по y
-
-	live2DModel->setParamFloat(5, 0.02);
-
-	live2DModel->setParamFloat(5, 0.04);
-
-	live2DModel->setParamFloat(5, 0.06);
-
-	live2DModel->setParamFloat(5, 0.08);
-
-	live2DModel->setParamFloat(5, 0.1);
-	live2DModel->setParamFloat(5, 0.1);
-	live2DModel->setParamFloat(5, 0.1);
-
-	live2DModel->setParamFloat(5, 0.08);
-
-	live2DModel->setParamFloat(5, 0.06);
-
-	live2DModel->setParamFloat(5, 0.04);
-
-	live2DModel->setParamFloat(5, 0.02);
-
-	live2DModel->setParamFloat(5, 0.f);
-
-	live2DModel->setParamFloat(5, -0.02);
-
-	live2DModel->setParamFloat(5, -0.04);
-
-	live2DModel->setParamFloat(5, -0.06);
-
-	live2DModel->setParamFloat(5, -0.08);
-
-	live2DModel->setParamFloat(5, -0.1);
-	live2DModel->setParamFloat(5, -0.1);
-	live2DModel->setParamFloat(5, -0.1);
-
-	live2DModel->setParamFloat(5, -0.08);
-
-	live2DModel->setParamFloat(5, -0.06);
-
-	live2DModel->setParamFloat(5, -0.04);
-
-	live2DModel->setParamFloat(5, -0.02);
-
-	live2DModel->setParamFloat(5, 0.f);
-
-
-
-}
-
 void LAppModel::update()
 {
-	dragMgr->update();
-	dragX=dragMgr->getX();
-	dragY=dragMgr->getY();
-	
+	////опять что то с touch
+	//dragMgr->update();
+	//dragX=dragMgr->getX();
+	//dragY=dragMgr->getY();
+	//
 	//-----------------------------------------------------------------
-	live2DModel->loadParam();// 前回セーブされた状態をロード
-	if(mainMotionMgr->isFinished())
+	live2DModel->loadParam();// 前回セーブされた状態をロード - грузится последнее сохраненное состаяние (местоположение частей модельки)
+
+
+	if(mainMotionMgr->isFinished())//если завершился motion
 	{
-		// モーションの再生がない場合、待機モーションの中からランダムで再生する
-		//startRandomMotion(MOTION_GROUP_IDLE, PRIORITY_IDLE);
-		switch(idle_expression.size())
-		{
-		case 1:
-			setExpression(idle_expression[0].c_str());
-			idle_expression.clear();
-			break;	
-		case 2:
-			setExpression(idle_expression[0].c_str(), idle_expression[1].c_str());
-			idle_expression.clear();
-			break;
-		case 3:
-			setExpression(idle_expression[0].c_str(), idle_expression[1].c_str(), idle_expression[2].c_str());
-			idle_expression.clear();
-			break;
-		case 4:
-			setExpression(idle_expression[0].c_str(), idle_expression[1].c_str(), idle_expression[2].c_str(), idle_expression[3].c_str());
-			idle_expression.clear();
-			break;
-		case 5:
-			setExpression(idle_expression[0].c_str(), idle_expression[1].c_str(), idle_expression[2].c_str(), idle_expression[3].c_str(), idle_expression[4].c_str());
-			idle_expression.clear();
-			break;
-		default:
-			break;
-		}
-		startMotion(MOTION_GROUP_IDLE, num_idle, PRIORITY_IDLE);
+		// モーションの再生がない場合、待機モーションの中からランダムで再生する воспроизводить случайную
+		startRandomMotion(MOTION_GROUP_IDLE, PRIORITY_IDLE);//ну вообще тут нужно повтарять установленный idle - или выбирать рандомный из группы idle
 	}
 	else
 	{
-		mainMotionMgr->updateParam(live2DModel);	
-	//	live2DModel->setParamFloat(); // ТУТ НУЖНО БУДЕТ НАСТРАИВАТЬ ПОБОЧНЫЕ ДЕЙСТВИЯ (движения глаз движение пальца)
+		mainMotionMgr->updateParam(live2DModel);//обновление 
 	}
-	live2DModel->saveParam();// 状態を保存
+
+	live2DModel->saveParam();// 状態を保存 - сохраняет свое состаяние
 	//-----------------------------------------------------------------
-
-
-	if(expressionMgr!=NULL)expressionMgr->updateParam(live2DModel);// 表情でパラメータ更新（相対変化）
-
-	if(physics!=NULL)physics->updateParam(live2DModel);// 物理演算でパラメータ更新
+	//int index_mouse = live2DModel->getPartsDataIndex("PARAM_MOUTH_FORM");
+	//live2DModel->setParamFloat("PARAM_MOUTH_FORM", 0);
 	
-	// リップシンクの設定
-	if(lipSync)
-	{
-		float value = 0;// リアルタイムでリップシンクを行う場合、システムから音量を取得して0～1の範囲で入力してください。
-		live2DModel->setParamFloat(PARAM_MOUTH_OPEN_Y, value, 0.8f);
-	}
+	if (expressionMgr != NULL)
+		expressionMgr->updateParam(live2DModel);// 表情でパラメータ更新（相対変化）
+																   // Обновление параметра с относительным выражением (относительное изменение)
+	////ドラッグによる変化
+	////ドラッグによる顔の向きの調整
+	//live2DModel->addToParamFloat( PARAM_ANGLE_X, dragX *  30 );// -30から30の値を加える
+	//live2DModel->addToParamFloat( PARAM_ANGLE_Y,dragY *  30 );
+	//live2DModel->addToParamFloat( PARAM_ANGLE_Z, (dragX * dragY) * -30 );
+	//
+	////ドラッグによる体の向きの調整
+	//live2DModel->addToParamFloat( PARAM_BODY_ANGLE_X    , dragX * 10 );// -10から10の値を加える
+	//
+	////ドラッグによる目の向きの調整
+	//live2DModel->addToParamFloat( PARAM_EYE_BALL_X, dragX  );// -1から1の値を加える
+	//live2DModel->addToParamFloat( PARAM_EYE_BALL_Y,dragY  );
+	//
+	//// 呼吸など
+	//long timeMSec = UtSystem::getUserTimeMSec() - startTimeMSec  ;
+	//double t = (timeMSec / 1000.0) * 2 * 3.14159  ;//2*Pi*t
+	//
+	//live2DModel->addToParamFloat( PARAM_ANGLE_X,	(float) (15 * sin( t/ 6.5345 )) , 0.5f);// -15 ~ +15 まで周期的に加算。周期は他とずらす。
+	//live2DModel->addToParamFloat( PARAM_ANGLE_Y,	(float) ( 8 * sin( t/ 3.5345 )) , 0.5f);
+	//live2DModel->addToParamFloat( PARAM_ANGLE_Z,	(float) (10 * sin( t/ 5.5345 )) , 0.5f);
+	//live2DModel->addToParamFloat( PARAM_BODY_ANGLE_X,	(float) ( 4 * sin( t/15.5345 )) , 0.5f);
+	//live2DModel->setParamFloat  ( PARAM_BREATH,	(float) (0.5f + 0.5f * sin( t/3.2345 )),1);// 0~1 まで周期的に設定。モーションを上書き。
 	
-	// ポーズの設定
+	
+	if(physics!=NULL)physics->updateParam(live2DModel);// 物理演算でパラメータ更新 - обновляет физику
+	
+	// リップシンクの設定 .. Настройка движений губ при озвучке, нужно тестировать...
+	//if(lipSync)
+	//{
+	//	float value = 0;// リアルタイムでリップシンクを行う場合、システムから音量を取得して0～1の範囲で入力してください。
+	//	live2DModel->setParamFloat(PARAM_MOUTH_OPEN_Y, value ,0.8f);
+	//}
+	//
+	// ポーズの設定 - изменяет позу
 	if(pose!=NULL)pose->updateParam(live2DModel);
 	
 	live2DModel->update();
+
+
 	
 }
 
-void LAppModel::setIdle(int no)
-{
-	num_idle = no;
-	startMotion(MOTION_GROUP_IDLE, num_idle, PRIORITY_IDLE);
-}
-
-void LAppModel::setdeferredIdle(int no, vector<string> temp_idle_expression)
-{
-	num_idle = no;
-	idle_expression.clear();
-	idle_expression.assign(temp_idle_expression.begin(), temp_idle_expression.end());
-}
-
-void LAppModel::setAction(int no)
-{
-	num_action = no;
-	startMotion(MOTION_GROUP_ACTION, num_action, PRIORITY_NORMAL);
-}
 
 int LAppModel::startMotion(const char group[],int no,int priority)
 {
-	if (priority==PRIORITY_FORCE)
+	if (priority==PRIORITY_FORCE)//при запуске motion идет проверка на максималиный приоритет
 	{
 		mainMotionMgr->setReservePriority(priority);
 	}
@@ -369,23 +301,23 @@ int LAppModel::startMotion(const char group[],int no,int priority)
 	ss << group << "_" <<  no;
 	
 	string name=ss.str();
-	AMotion* motion = motions[name.c_str()];
+	AMotion* motion = motions[name.c_str()]; //получаем motion по имени
 	bool autoDelete = false;
-	if ( motion == NULL )
+	if ( motion == NULL )//если такого не существует (грузим не из файла модельки а кастом) 
 	{
 		string path=fileName;
 		path=modelHomeDir+path;
-		motion = loadMotion(NULL,path.c_str());
+		motion = loadMotion(NULL, path.c_str());//то прогружаем
 		
-		autoDelete = true;// 終了時にメモリから削除
+		autoDelete = true;// 終了時にメモリから削除 // и удаляем из памяти при завершении
 	}
 	
-	motion->setFadeIn(  modelSetting->getMotionFadeIn(group,no)  );
-	motion->setFadeOut( modelSetting->getMotionFadeOut(group,no) );
+	motion->setFadeIn(  modelSetting->getMotionFadeIn(group,no)  ); //получаем fatein
+	motion->setFadeOut( modelSetting->getMotionFadeOut(group,no) );// и fadeout
 	
     if(LAppDefine::DEBUG_LOG)log("start motion ( %s : %d )",group,no);
 	
-	////voice
+	//voice .. Настройка движений губ при озвучке, нужно тестировать...
 	//const char* voice=modelSetting->getMotionSound(group,no);
 	//if (voice!=NULL && strcmp( voice , "" ) != 0)
 	//{
@@ -397,13 +329,22 @@ int LAppModel::startMotion(const char group[],int no,int priority)
 	//}
 	
 	
-	return mainMotionMgr->startMotionPrio(motion,autoDelete,priority);
+	return mainMotionMgr->startMotionPrio(motion,autoDelete,priority); //запускаем motion с приоритетом
 }
 
 
-void LAppModel::draw()
+int LAppModel::startRandomMotion(const char name[],int priority)
 {
-    if (live2DModel == NULL)return;
+	if(modelSetting->getMotionNum(name)==0)return -1;
+    int no = rand() % modelSetting->getMotionNum(name);
+    
+    return startMotion(name,no,priority);
+}
+
+
+void LAppModel::draw()//отрисовка моделек?
+{
+    if (live2DModel == NULL)return; //проверяем есть ли вообще объект для отрисовки моделек
 	
 	live2DModel->draw();
 }
@@ -415,325 +356,149 @@ void LAppModel::draw(live2d::framework::L2DMatrix44& matrix, float x, float y, f
 		
 	float mvp[16];
 	L2DMatrix44::mul(  matrix.getArray(),modelMatrix->getArray(),mvp);
+	
+	//LIVE2D_NODE_CREATE->getScale()
 
-	mvp[12] = x;
-	mvp[13] = y;
-    mvp[0] = mvp[0] / (z*1.2);
-	mvp[5] = mvp[5] / (z*1.2);
+	mvp[0] = mvp[0] / LIVE2D_NODE_CREATE->getScale();
+	mvp[5] = mvp[5] / LIVE2D_NODE_CREATE->getScale();
+	mvp[12] = mvp[12] / (LIVE2D_NODE_CREATE->getScale() *1.5) ;
+	mvp[13] = y / (LIVE2D_NODE_CREATE->getScale());
+	
 	((Live2DModelOpenGL*)live2DModel)->setMatrix(mvp) ;
 	draw();
 }
 
-
-string int_to_string(int x)
-{
-	std::stringstream buff;
-	buff << x;
-	string complete;
-	buff >> complete;
-	return complete;
-}
-
 void LAppModel::setExpression(const char expressionID[])
 {
-	loadExpression("comlete_expression", (*dir_expression[expressionID]).c_str());
-	AMotion* motion = expressions["comlete_expression"];
+	AMotion* motion = expressions[expressionID];
+	if (LAppDefine::DEBUG_LOG)log("expression[%s]", expressionID);
+	if (motion != NULL)
+	{
+		expressionMgr->startMotion(motion, false);
+	}
+	else
+	{
+		if (LAppDefine::DEBUG_LOG)log("expression[%s] is null ", expressionID);
+	}
+}
+//
+//void LAppModel::setRandomExpression()
+//{
+//	int no = rand() % expressions.size();
+//	map<string, AMotion* >::const_iterator map_ite;
+//	int i = 0;
+//	for (map_ite = expressions.begin(); map_ite != expressions.end(); map_ite++)
+//	{
+//		if (i == no)
+//		{
+//			string name = (*map_ite).first;
+//			setExpression(name.c_str());
+//			return;
+//		}
+//		i++;
+//	}
+//}
+
+
+void LAppModel::setExpression(std::vector<std::string> presets)
+{
+	auto _loadExpression([=](const char *name, size_t size, const char* data)
+	{
+		if (expressions[name] != NULL)
+		{
+			delete expressions[name];
+			expressions[name] = NULL;
+		}
+		L2DExpressionMotion* motion = L2DExpressionMotion::loadJson(data, (int)size);
+		expressions[name] = motion;
+	});
+	std::string name_level = "";
+	std::string complete = "";
+	//Expression - пресеты лица 
+	if (modelSetting->getExpressionNum() > 0)
+	{
+		int len = modelSetting->getExpressionNum();
 	
-	if(LAppDefine::DEBUG_LOG)log( "expression[%s]" , expressionID ) ;
-	if( motion != NULL )
-	{
-		expressionMgr->startMotion(motion, false) ;
-	}
-	else
-	{
-		if(LAppDefine::DEBUG_LOG)log( "expression[%s] is null " , expressionID ) ;
-	}
-}
-
-
-void LAppModel::setExpression(const char expressionID1[], const char expressionID2[])
-{
-
-
-	auto filedata([=](string dir1, string dir2)
-	{
-		ssize_t size1;
-		ssize_t size2;
-		unsigned char* data1 = CCFileUtils::getInstance()->getFileData(dir1.c_str(), "rb", &size1);
-		unsigned char* data2 = CCFileUtils::getInstance()->getFileData(dir2.c_str(), "rb", &size2);
-		string complete = string(reinterpret_cast<char const*>(data1), size1 - 7);
-		complete = complete + ',';
-		for (int n = 0; n < size2; n++)
+	
+		for (int n = 0; n < presets.size(); n++)
 		{
-			if (data2[n] == 0x5b)
+			for (int i = 0; i < len; i++)
 			{
-				n++;
-				for (; n < size2; n++)
+				string name = modelSetting->getExpressionName(i);
+				if (name == presets[n])
 				{
-					complete = complete + static_cast<char>(data2[n]);
+					name_level += name;
+					string file = modelSetting->getExpressionFile(i);
+					file = modelHomeDir + file;
+
+					IPlatformManager* pm = Live2DFramework::getPlatformManager();
+					size_t size;
+					unsigned char* data = pm->loadBytes(file.c_str(), &size);
+
+					if (complete.length() == 0)
+					{
+						for (int z = 0; z < size; z++)
+							complete += data[z];
+					}
+					else
+					{
+						complete = complete.substr(0, complete.length() - 7);
+						complete += ',';
+						bool ready = false;
+						for (int z = 0; z < size; z++)
+						{
+							if (data[z] == 0x5b)
+							{
+								ready = true;
+								z++;
+							}
+							if (ready == true)
+								complete += data[z];
+						}
+					}
+					free(data);
+					break;
 				}
 			}
 		}
-		delete[] data1;
-		delete[] data2;
-		return complete;
-	});
-	string expression = filedata(*dir_expression[expressionID1], *dir_expression[expressionID2]);
-	ofstream temp("Debug.win32\\temp.json", ios::binary);
-	temp.write(expression.c_str(), expression.length());
-	temp.close();
-	string name_expression = int_to_string(rand()); // каждый раз необходимо создавать уникальное имя
-	loadExpression(name_expression.c_str(), "temp.json");
-	std::remove("Debug.win32\\temp.json");
-	AMotion* motion = expressions[name_expression.c_str()];
+	}
 
-	if (LAppDefine::DEBUG_LOG)log("expression[%s]", expressionID1, expressionID2);
+	_loadExpression(name_level.c_str(), complete.length(), complete.c_str());
+	AMotion* motion = expressions[name_level.c_str()];
+	
 	if (motion != NULL)
 	{
 		expressionMgr->startMotion(motion, false);
 	}
 	else
 	{
-		if (LAppDefine::DEBUG_LOG)log("expression[%s] is null ", expressionID1, expressionID2);
+		if (LAppDefine::DEBUG_LOG)log("expression[%s] is null ", name_level);
 	}
 }
 
 
-
-void LAppModel::setExpression(const char expressionID1[], const char expressionID2[], const char expressionID3[])
-{
-
-
-	auto filedata([=](string dir1, string dir2, string dir3)
-	{
-		ssize_t size1;
-		ssize_t size2;
-		ssize_t size3;
-		unsigned char* data1 = CCFileUtils::getInstance()->getFileData(dir1.c_str(), "rb", &size1);
-		unsigned char* data2 = CCFileUtils::getInstance()->getFileData(dir2.c_str(), "rb", &size2);
-		unsigned char* data3 = CCFileUtils::getInstance()->getFileData(dir3.c_str(), "rb", &size3);
-		string complete = string(reinterpret_cast<char const*>(data1), size1 - 7);
-		complete = complete + ',';
-		for (int n = 0; n < size2; n++)
-		{
-			if (data2[n] == 0x5b)
-			{
-				n++;
-				for (; n < size2-7; n++)
-				{
-					complete = complete + static_cast<char>(data2[n]);
-				}
-			}
-		}
-		complete = complete + ',';
-		for (int n = 0; n < size3; n++)
-		{
-			if (data3[n] == 0x5b)
-			{
-				n++;
-				for (; n < size3; n++)
-				{
-					complete = complete + static_cast<char>(data3[n]);
-				}
-			}
-		}
-		delete[] data1;
-		delete[] data2;
-		delete[] data3;
-		return(complete);
-	});
-
-	string expression = filedata(*dir_expression[expressionID1], *dir_expression[expressionID2], *dir_expression[expressionID3]);
-	ofstream temp("Debug.win32\\temp.json", ios::binary);
-	temp.write(expression.c_str(), expression.length());
-	temp.close();
-	string name_expression = int_to_string(rand()); // каждый раз необходимо создавать уникальное имя
-	loadExpression(name_expression.c_str(), "temp.json");
-	std::remove("Debug.win32\\temp.json");
-	AMotion* motion = expressions[name_expression.c_str()];
+//
+///*
+// * 当たり判定との簡易テスト。
+// * 指定IDの頂点リストからそれらを含む最大の矩形を計算し、点がそこに含まれるか判定
+// *
+// */ //опять функция для touch
+//bool LAppModel::hitTest(const char pid[],float testX,float testY)
+//{
+//	if(alpha<1)return false;// 透明時は当たり判定なし。
+//	int len=modelSetting->getHitAreasNum();
+//	for (int i = 0; i < len; i++)
+//	{
+//		if( strcmp( modelSetting->getHitAreaName(i) ,pid) == 0 )
+//		{
+//			const char* drawID=modelSetting->getHitAreaID(i);
+//			return hitTestSimple(drawID,testX,testY);
+//		}
+//	}
+//	return false;// 存在しない場合はfalse
+//}
 
 
-	if (LAppDefine::DEBUG_LOG)log("expression[%s]", expressionID1, expressionID2, expressionID3);
-	if (motion != NULL)
-	{
-		expressionMgr->startMotion(motion, false);
-	}
-	else
-	{
-		if (LAppDefine::DEBUG_LOG)log("expression[%s] is null ", expressionID1, expressionID2, expressionID3);
-	}
-}
-
-void LAppModel::setExpression(const char expressionID1[], const char expressionID2[], const char expressionID3[], const char expressionID4[])
-{
 
 
-	auto filedata([=](string dir1, string dir2, string dir3, string dir4)
-	{
-		ssize_t size1;
-		ssize_t size2;
-		ssize_t size3;
-		ssize_t size4;
-		unsigned char* data1 = CCFileUtils::getInstance()->getFileData(dir1.c_str(), "rb", &size1);
-		unsigned char* data2 = CCFileUtils::getInstance()->getFileData(dir2.c_str(), "rb", &size2);
-		unsigned char* data3 = CCFileUtils::getInstance()->getFileData(dir3.c_str(), "rb", &size3);
-		unsigned char* data4 = CCFileUtils::getInstance()->getFileData(dir4.c_str(), "rb", &size4);
-		string complete = string(reinterpret_cast<char const*>(data1), size1 - 7);
-		complete = complete + ',';
-		for (int n = 0; n < size2; n++)
-		{
-			if (data2[n] == 0x5b)
-			{
-				n++;
-				for (; n < size2 - 7; n++)
-				{
-					complete = complete + static_cast<char>(data2[n]);
-				}
-			}
-		}
-		complete = complete + ',';
-		for (int n = 0; n < size3 - 7; n++)
-		{
-			if (data3[n] == 0x5b)
-			{
-				n++;
-				for (; n < size3 - 7; n++)
-				{
-					complete = complete + static_cast<char>(data3[n]);
-				}
-			}
-		}
-		complete = complete + ',';
-		for (int n = 0; n < size4; n++)
-		{
-			if (data4[n] == 0x5b)
-			{
-				n++;
-				for (; n < size4; n++)
-				{
-					complete = complete + static_cast<char>(data4[n]);
-				}
-			}
-		}
-		delete[] data1;
-		delete[] data2;
-		delete[] data3;
-		delete[] data4;
-		return(complete);
-	});
 
-	string expression = filedata(*dir_expression[expressionID1], *dir_expression[expressionID2], *dir_expression[expressionID3], *dir_expression[expressionID4]);
-	ofstream temp("Debug.win32\\temp.json", ios::binary);
-	temp.write(expression.c_str(), expression.length());
-	temp.close();
-	string name_expression = int_to_string(rand()); // каждый раз необходимо создавать уникальное имя
-	loadExpression(name_expression.c_str(), "temp.json");
-	std::remove("Debug.win32\\temp.json");
-	AMotion* motion = expressions[name_expression.c_str()];
-
-
-	if (LAppDefine::DEBUG_LOG)log("expression[%s]", expressionID1, expressionID2, expressionID3, expressionID4);
-	if (motion != NULL)
-	{
-		expressionMgr->startMotion(motion, false);
-	}
-	else
-	{
-		if (LAppDefine::DEBUG_LOG)log("expression[%s] is null ", expressionID1, expressionID2, expressionID3, expressionID4);
-	}
-}
-
-void LAppModel::setExpression(const char expressionID1[], const char expressionID2[], const char expressionID3[], const char expressionID4[], const char expressionID5[])
-{
-
-
-	auto filedata([=](string dir1, string dir2, string dir3, string dir4, string dir5)
-	{
-		ssize_t size1;
-		ssize_t size2;
-		ssize_t size3;
-		ssize_t size4;
-		ssize_t size5;
-		unsigned char* data1 = CCFileUtils::getInstance()->getFileData(dir1.c_str(), "rb", &size1);
-		unsigned char* data2 = CCFileUtils::getInstance()->getFileData(dir2.c_str(), "rb", &size2);
-		unsigned char* data3 = CCFileUtils::getInstance()->getFileData(dir3.c_str(), "rb", &size3);
-		unsigned char* data4 = CCFileUtils::getInstance()->getFileData(dir4.c_str(), "rb", &size4);
-		unsigned char* data5 = CCFileUtils::getInstance()->getFileData(dir5.c_str(), "rb", &size5);
-		string complete = string(reinterpret_cast<char const*>(data1), size1 - 7);
-		complete = complete + ',';
-		for (int n = 0; n < size2; n++)
-		{
-			if (data2[n] == 0x5b)
-			{
-				n++;
-				for (; n < size2 - 7; n++)
-				{
-					complete = complete + static_cast<char>(data2[n]);
-				}
-			}
-		}
-		complete = complete + ',';
-		for (int n = 0; n < size3 - 7; n++)
-		{
-			if (data3[n] == 0x5b)
-			{
-				n++;
-				for (; n < size3 - 7; n++)
-				{
-					complete = complete + static_cast<char>(data3[n]);
-				}
-			}
-		}
-		complete = complete + ',';
-		for (int n = 0; n < size4 - 7; n++)
-		{
-			if (data3[n] == 0x5b)
-			{
-				n++;
-				for (; n < size4 - 7; n++)
-				{
-					complete = complete + static_cast<char>(data4[n]);
-				}
-			}
-		}
-		complete = complete + ',';
-		for (int n = 0; n < size5; n++)
-		{
-			if (data5[n] == 0x5b)
-			{
-				n++;
-				for (; n < size5; n++)
-				{
-					complete = complete + static_cast<char>(data5[n]);
-				}
-			}
-		}
-		delete[] data1;
-		delete[] data2;
-		delete[] data3;
-		delete[] data4;
-		delete[] data5;
-		return(complete);
-	});
-
-	string expression = filedata(*dir_expression[expressionID1], *dir_expression[expressionID2], *dir_expression[expressionID3], *dir_expression[expressionID4], *dir_expression[expressionID5]);
-	ofstream temp("Debug.win32\\temp.json", ios::binary);
-	temp.write(expression.c_str(), expression.length());
-	temp.close();
-	string name_expression = int_to_string(rand()); // каждый раз необходимо создавать уникальное имя
-	loadExpression(name_expression.c_str(), "temp.json");
-	std::remove("Debug.win32\\temp.json");
-	AMotion* motion = expressions[name_expression.c_str()];
-
-	motion->setFadeIn(1000);
-	motion->setFadeOut(1000);
-	if (LAppDefine::DEBUG_LOG)log("expression[%s]", expressionID1, expressionID2, expressionID3, expressionID4, expressionID5);
-	if (motion != NULL)
-	{
-		expressionMgr->startMotion(motion, false);
-	}
-	else
-	{
-		if (LAppDefine::DEBUG_LOG)log("expression[%s] is null ", expressionID1, expressionID2, expressionID3, expressionID4, expressionID5);
-	}
-}

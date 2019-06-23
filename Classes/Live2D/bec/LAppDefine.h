@@ -22,7 +22,7 @@ static const float VIEW_LOGICAL_MAX_TOP = 2;
 
 
 // モデル定義------------------------------------------------------------------------
-// モデルの後ろにある背景の画像ファイル
+// モデルの後ろにある背景の画像ファイル // Фон за моделью
 //static const char BACK_IMAGE_NAME[] = "back_class_normal.png" ;
 
 
@@ -41,12 +41,12 @@ static const int INDEX_MODEL_KURONEKO_MAX = 2;
 static const int INDEX_MODEL_MANAMI_MAX = 2;
 static const int INDEX_MODEL_SAORI_MAX = 1;
 
-static const char MODEL_AYASE_DIR[] = "Resources/Live2D/ayase/";
-static const char MODEL_KANAKO_DIR[] = "Resources/Live2D/kanako/";
-static const char MODEL_KIRINO_DIR[] = "Resources/Live2D/kirino/";
-static const char MODEL_KURONEKO_DIR[] = "Resources/Live2D/kuroneko/";
-static const char MODEL_MANAMI_DIR[] = "Resources/Live2D/manami/";
-static const char MODEL_SAORI_DIR[] = "Resources/Live2D/saori/";
+static const char MODEL_AYASE_DIR[]			= "Resources/Live2D/ayase/";
+static const char MODEL_KANAKO_DIR[]		= "Resources/Live2D/kanako/";
+static const char MODEL_KIRINO_DIR[]		= "Resources/Live2D/kirino/";
+static const char MODEL_KURONEKO_DIR[]		= "Resources/Live2D/kuroneko/";
+static const char MODEL_MANAMI_DIR[]		= "Resources/Live2D/manami/";
+static const char MODEL_SAORI_DIR[]			= "Resources/Live2D/saori/";
 
 
 static const char MODEL_AYASE_A[] = "ayase_seifuku.model.json";
@@ -65,20 +65,21 @@ static const char MODEL_SAORI_A[] = "saori_shifuku.model.json";
 static const char MODEL_SAORI_B[] = "saori_ojousama.model.json";
 
 
-// 外部定義ファイル(json)と合わせる
-static const char MOTION_GROUP_IDLE[]			="idle";// アイドリング
-static const char MOTION_GROUP_TAP_BODY[]		="tap_body";// 体をタップしたとき
 
 // 外部定義ファイル(json)と合わせる
-//static const char HIT_AREA_NAME_HEAD[]		="head";
-//static const char HIT_AREA_NAME_BODY[]		="body";
+static const char MOTION_GROUP_IDLE[]			="idle";// idle
+static const char MOTION_GROUP_ACTION[]			="action";// action
 
-// モーションの優先度定数
+// 外部定義ファイル(json)と合わせる
+static const char HIT_AREA_NAME_HEAD[]		="head";
+static const char HIT_AREA_NAME_BODY[]		="body";
+
+// モーションの優先度定数 // приоритеты?
 static const int PRIORITY_NONE  = 0;
-static const int PRIORITY_IDLE  = 1;
+static const int PRIORITY_IDLE = 1;
 static const int PRIORITY_NORMAL= 2;
-static const int PRIORITY_FORCE = 3;
-
+static const int PRIORITY_EXPRESSION = 3;
+static const int PRIORITY_FORCE = 4;
 // данные матрицы размеров
 static const float AYASE_MATRIX_X = -1.4;
 static const float AYASE_MATRIX_Y = 1.3;
@@ -103,7 +104,6 @@ static const float MANAMI_MATRIX_Z = 1;
 static const float SAORI_MATRIX_X = -1.4;
 static const float SAORI_MATRIX_Y = 2.1;
 static const float SAORI_MATRIX_Z = 1;
-
 
 class LAppDefine {
 public:

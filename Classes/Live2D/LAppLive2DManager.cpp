@@ -31,42 +31,25 @@ static LAppLive2DManager* instance=NULL;
 
 
 
-LAppLive2DManager* LAppLive2DManager::getInstance(int model, int texture)
-{
+extern Node *LIVE2D_NODE_CREATE;
 
+
+LAppLive2DManager* LAppLive2DManager::getInstance()//можно сказать функция пре конструктор, чтобы объект
+{													// LAppLive2DManager существовал в коде в единственном экземпляре
 
 	if (instance==NULL)
 	{
-		instance=new LAppLive2DManager(model, texture);
-	}
-	else
-	{
-		delete instance;
-		instance = new LAppLive2DManager(model, texture);
+		instance=new LAppLive2DManager();//создаем объект
 	}
 	
 	return instance;
 }
 
 
-void LAppLive2DManager::releaseInstance()
+
+LAppLive2DManager::LAppLive2DManager() // конструктор (по умолчанию будет выбрана сцена под индексом 0)
 {
-	if (instance)
-	{
-		delete instance;
-		auto framework=live2d::framework::Live2DFramework::getPlatformManager();
-		delete framework;
-	}
-
-	instance=NULL;
-}
-
-
-LAppLive2DManager::LAppLive2DManager(int model, int texture)
-{
-	Index_model = model;
-	Index_texture = texture;
-
+	
 	if (LAppDefine::DEBUG_LOG) {
 		log( "==============================================" ) ;
 		log( "   Live2D SDK Sample App1") ;
@@ -80,8 +63,7 @@ LAppLive2DManager::LAppLive2DManager(int model, int texture)
 	//UtDebug::addMemoryDebugFlags( live2d::UtDebug::MEMORY_DEBUG_MEMORY_INFO_COUNT ) ;
 	
 	// Initialize Live2D
-	//Live2D::init( &myAllocator );
-	Live2D::init();
+	Live2D::init(); //входная иницилизация live2D при выходе юзать Live2D::dispose();
 
 	#ifdef L2D_TARGET_ANDROID_ES2
 	    char *exts = (char*)glGetString(GL_EXTENSIONS);
@@ -90,33 +72,16 @@ LAppLive2DManager::LAppLive2DManager(int model, int texture)
 	    }
 	#endif
 
-	Live2DFramework::setPlatformManager(new PlatformManager());
-
-//	dragMgr=new L2DTargetPoint();
-	changeModel();
+	Live2DFramework::setPlatformManager(new PlatformManager());//создаем и устанавливает в себя объект ??? не очень понял что делает
 	
-	//voice=new SimplePlayer();
-	//voice->OnInitialize();
-	viewMatrix=NULL;
-}
-
-
-LAppLive2DManager::~LAppLive2DManager()
-{
-	releaseModel();
-	Live2D::dispose();
+	//changeScene(SCENE_INDEX_HARU); // устанавливает модельку
 	
+	viewMatrix=NULL;//??ну если предположить что эта матрица - кастомное 
+	//местоположение моделек в облости - то она просто обнулсяется перед новой иницилизацией
 }
 
 
-void LAppLive2DManager::releaseModel()
-{
-	for (int i=0; i<models.size(); i++)
-	{
-		delete models[i];
-	}
-    models.clear();
-}
+
 
 #ifdef L2D_TARGET_ANDROID_ES2
 void LAppLive2DManager::reinit()
@@ -126,25 +91,16 @@ void LAppLive2DManager::reinit()
 }
 #endif
 
-void LAppLive2DManager::onDrag(float x, float y)
-{
-	for (int i=0; i<models.size(); i++)
-	{
-		LAppModel* model = getModel(i);
-		
-		model->setDrag(x,y);
-		
-	}
-}
-
 void LAppLive2DManager::onUpdate()
 {
-	// Live2Dの描画前と描画後に以下の関数を呼んでください
+	// Live2Dの描画前と描画後に以下の関数を呼んでください Вызываем следующие функции до и после рисования Live2D
 	//live2d::DrawProfileCocos2D::preDraw() ;
 	//live2d::DrawProfileCocos2D::postDraw() ;
-	// これはOpenGLの状態をもとに戻すための処理です。
-	// これを行わない場合、Cocos2DかLive2Dどちらかで状態の不整合が起こります。
-	live2d::DrawProfileCocos2D::preDraw();
+	// これはOpenGLの状態をもとに戻すための処理です。 Это процесс восстановления состояния OpenGL.
+	// これを行わない場合、Cocos2DかLive2Dどちらかで状態の不整合が起こります。Если вы этого не сделаете, 
+																		//то Cocos2D или Live2D вызовут несогласованность состояний.
+	
+	live2d::DrawProfileCocos2D::preDraw(); //всегда должна вызываться перед собственной отрисовкой
 
 	L2DMatrix44 projection;
 	Director* director=Director::getInstance();
@@ -152,29 +108,34 @@ void LAppLive2DManager::onUpdate()
 	projection.scale(1, window.width/window.height);
 	
 	if (viewMatrix!=NULL) {
-		projection.append(viewMatrix);
+		projection.append(viewMatrix);//(что то там преобразует с матрицей)
 	}
 	
-
-	for (int i=0; i<models.size(); i++)
+	
+	for (int i=0; i<models.size(); i++)//проходимся по всем активным моделькам - обновляем параметры
 	{
-		LAppModel* model = getModel(i);
+		LAppModel* model = getModel(i);//получаем модель по индексу (вот что что но я НИ РАЗУ не понял зачем делать обертку доступа к вектору)
 		
 		
-		model->update();
-		model->draw(projection, Coordinate_model_x, Coordinate_model_y, Coordinate_model_z);
+		model->update();//обновляем пораметры
+		//model->getLive2DModel()->getDrawParam()->setBaseColor(0.1f, 1, 1, 1);
+		//model->getLive2DModel()->getDrawParam()->setBaseColor(float(LIVE2D_NODE_CREATE->getOpacity())/255.f, 1, 1, 1);//подрубает opacity родительской ноды созданной кокоса
+
+		
+		model->draw(projection, Coordinate_model_x, Coordinate_model_y, Coordinate_model_z);//отрисовываем по матрице?..
+		
 	}
 	
-	live2d::DrawProfileCocos2D::postDraw() ;
+	live2d::DrawProfileCocos2D::postDraw(); //всегда должна вызываться после завершения отрисовки
 }
 
 
-void LAppLive2DManager::changeModel()
+
+
+LAppModel* LAppLive2DManager::changeScene(int Index_model, int Index_texture)//изменяет модельки по индексу
 {
-	//sceneIndex=index;
-	if (LAppDefine::DEBUG_LOG)log("model index : %d", Index_model, Index_texture);
-	Index_model = 2; // установка номера мождели вручную
-	Index_texture = 2; //установка номера текстуры вручную
+//	sceneIndex=index;
+	if(LAppDefine::DEBUG_LOG)log("model index : %d", Index_model);
 	switch (Index_model)
 	{
 	case INDEX_MODEL_AYASE:
@@ -196,146 +157,178 @@ void LAppLive2DManager::changeModel()
 		Coordinate_model_z = AYASE_MATRIX_Z;
 		break;
 	case INDEX_MODEL_KANAKO:
-			releaseModel();
-			models.push_back(new LAppModel());
-			switch (Index_texture)
-			{
-			case 0:
-				models[0]->load(MODEL_KANAKO_DIR, MODEL_KANAKO_A);
-				break;
-			case 1:
-				models[0]->load(MODEL_KANAKO_DIR, MODEL_KANAKO_B);
-				break;
-			case 2:
-				models[0]->load(MODEL_KANAKO_DIR, MODEL_KANAKO_C);
-				break;
-			default:
-				break;
-			}
-			Coordinate_model_x = KANAKO_MATRIX_X;
-			Coordinate_model_y = KANAKO_MATRIX_Y;
-			Coordinate_model_z = KANAKO_MATRIX_Z;
+		releaseModel();
+		models.push_back(new LAppModel());
+		switch (Index_texture)
+		{
+		case 0:
+			models[0]->load(MODEL_KANAKO_DIR, MODEL_KANAKO_A);
 			break;
-		case INDEX_MODEL_KIRINO:
-			releaseModel();
-			models.push_back(new LAppModel());
-			switch (Index_texture)
-			{
-			case 0:
-				models[0]->load(MODEL_KIRINO_DIR, MODEL_KIRINO_A);
-				break;
-			case 1:
-				models[0]->load(MODEL_KIRINO_DIR, MODEL_KIRINO_B);
-				break;
-			case 2:
-				models[0]->load(MODEL_KIRINO_DIR, MODEL_KIRINO_C);
-				break;
-			default:
-				break;
-			}
-			Coordinate_model_x = KIRINO_MATRIX_X;
-			Coordinate_model_y = KIRINO_MATRIX_Y;
-			Coordinate_model_z = KIRINO_MATRIX_Z;
+		case 1:
+			models[0]->load(MODEL_KANAKO_DIR, MODEL_KANAKO_B);
 			break;
-		case INDEX_MODEL_KURONEKO:
-			releaseModel();
-			models.push_back(new LAppModel());
-			switch (Index_texture)
-			{
-			case 0:
-				models[0]->load(MODEL_KURONEKO_DIR, MODEL_KURONEKO_A);
-				break;
-			case 1:
-				models[0]->load(MODEL_KURONEKO_DIR, MODEL_KURONEKO_B);
-				break;
-			default:
-				break;
-			}
-			Coordinate_model_x = KURONEKO_MATRIX_X;
-			Coordinate_model_y = KURONEKO_MATRIX_Y;
-			Coordinate_model_z = KURONEKO_MATRIX_Z;
-			break;
-		case INDEX_MODEL_MANAMI:
-			models.push_back(new LAppModel());
-			switch (Index_texture)
-			{
-			case 0:
-				models[0]->load(MODEL_MANAMI_DIR, MODEL_MANAMI_A);
-				break;
-			case 1:
-				models[0]->load(MODEL_MANAMI_DIR, MODEL_MANAMI_B);
-				break;
-			default:
-				break;
-			}
-			Coordinate_model_x = MANAMI_MATRIX_X;
-			Coordinate_model_y = MANAMI_MATRIX_Y;
-			Coordinate_model_z = MANAMI_MATRIX_Z;
-			break;
-		case INDEX_MODEL_SAORI:
-			releaseModel();
-			models.push_back(new LAppModel());
-			switch (Index_texture)
-			{
-			case 0:
-				models[0]->load(MODEL_SAORI_DIR, MODEL_SAORI_A);
-				break;
-			case 1:
-				models[0]->load(MODEL_SAORI_DIR, MODEL_SAORI_B);
-				break;
-			default:
-				break;
-			}
-			Coordinate_model_x = SAORI_MATRIX_X;
-			Coordinate_model_y = SAORI_MATRIX_Y;
-			Coordinate_model_z = SAORI_MATRIX_Z;
+		case 2:
+			models[0]->load(MODEL_KANAKO_DIR, MODEL_KANAKO_C);
 			break;
 		default:
 			break;
-	}
-	
-}
-using namespace std;
-
-void LAppLive2DManager::changeCoordinate(float x, float y, float z)
-{
-	this->Coordinate_model_x = x;
-	this->Coordinate_model_y = y;
-	this->Coordinate_model_z = z;
-}
-
-void LAppLive2DManager::changeExpression(vector<string> expression)
-{
-	switch (expression.size())
-	{
-	case 1:
-		models[0]->setExpression(expression[0].c_str());
+		}
+		Coordinate_model_x = KANAKO_MATRIX_X;
+		Coordinate_model_y = KANAKO_MATRIX_Y;
+		Coordinate_model_z = KANAKO_MATRIX_Z;
 		break;
-	case 2:
-		models[0]->setExpression(expression[0].c_str(), expression[1].c_str());
+	case INDEX_MODEL_KIRINO:
+		releaseModel();
+		models.push_back(new LAppModel());
+		switch (Index_texture)
+		{
+		case 0:
+			models[0]->load(MODEL_KIRINO_DIR, MODEL_KIRINO_A);
+			break;
+		case 1:
+			models[0]->load(MODEL_KIRINO_DIR, MODEL_KIRINO_B);
+			break;
+		case 2:
+			models[0]->load(MODEL_KIRINO_DIR, MODEL_KIRINO_C);
+			break;
+		default:
+			break;
+		}
+		Coordinate_model_x = KIRINO_MATRIX_X;
+		Coordinate_model_y = KIRINO_MATRIX_Y;
+		Coordinate_model_z = KIRINO_MATRIX_Z;
 		break;
-	case 3:
-		models[0]->setExpression(expression[0].c_str(), expression[1].c_str(), expression[2].c_str());
+	case INDEX_MODEL_KURONEKO:
+		releaseModel();
+		models.push_back(new LAppModel());
+		switch (Index_texture)
+		{
+		case 0:
+			models[0]->load(MODEL_KURONEKO_DIR, MODEL_KURONEKO_A);
+			break;
+		case 1:
+			models[0]->load(MODEL_KURONEKO_DIR, MODEL_KURONEKO_B);
+			break;
+		default:
+			break;
+		}
+		Coordinate_model_x = KURONEKO_MATRIX_X;
+		Coordinate_model_y = KURONEKO_MATRIX_Y;
+		Coordinate_model_z = KURONEKO_MATRIX_Z;
 		break;
-	case 4:
-		models[0]->setExpression(expression[0].c_str(), expression[1].c_str(), expression[2].c_str(), expression[3].c_str());
+	case INDEX_MODEL_MANAMI:
+		releaseModel();
+		models.push_back(new LAppModel());
+		switch (Index_texture)
+		{
+		case 0:
+			models[0]->load(MODEL_MANAMI_DIR, MODEL_MANAMI_A);
+			break;
+		case 1:
+			models[0]->load(MODEL_MANAMI_DIR, MODEL_MANAMI_B);
+			break;
+		default:
+			break;
+		}
+		Coordinate_model_x = MANAMI_MATRIX_X;
+		Coordinate_model_y = MANAMI_MATRIX_Y;
+		Coordinate_model_z = MANAMI_MATRIX_Z;
 		break;
-	case 5:
-		models[0]->setExpression(expression[0].c_str(), expression[1].c_str(), expression[2].c_str(), expression[3].c_str(), expression[4].c_str());
+	case INDEX_MODEL_SAORI:
+		releaseModel();
+		models.push_back(new LAppModel());
+		switch (Index_texture)
+		{
+		case 0:
+			models[0]->load(MODEL_SAORI_DIR, MODEL_SAORI_A);
+			break;
+		case 1:
+			models[0]->load(MODEL_SAORI_DIR, MODEL_SAORI_B);
+			break;
+		default:
+			break;
+		}
+		Coordinate_model_x = SAORI_MATRIX_X;
+		Coordinate_model_y = SAORI_MATRIX_Y;
+		Coordinate_model_z = SAORI_MATRIX_Z;
 		break;
 	default:
 		break;
 	}
-	
+
+	return models.back();
 }
 
-void LAppLive2DManager::changeIdle(int num_idle)
+
+
+
+
+
+void LAppLive2DManager::releaseModel()//отчищает все модельки и их настройки
 {
-	models[0]->setIdle(num_idle);
+	for (int i = 0; i<models.size(); i++)
+	{
+		delete models[i];
+	}
+	models.clear();
 }
 
-void LAppLive2DManager::changeAction(int num_action, int num_idle, vector<string> idle_expression)
+
+void LAppLive2DManager::releaseInstance()//пре деструктор?
 {
-	models[0]->setAction(num_action);
-	models[0]->setdeferredIdle(num_idle, idle_expression);
+	if (instance)
+	{
+		delete instance;
+		auto framework = live2d::framework::Live2DFramework::getPlatformManager();
+		delete framework;
+	}
+
+	instance = NULL;
 }
+
+LAppLive2DManager::~LAppLive2DManager()//деструктор
+{
+	releaseModel();
+	Live2D::dispose();//завершение работы с live2d
+
+}
+
+
+//void LAppLive2DManager::nextScene()//переключает модельки повышая индекс 0_0? можно будет сделать смену модели с отправкой индекса
+//{
+//	int no = (sceneIndex+1) % SCENE_NUM;
+//	changeScene(no);
+//}
+
+//
+//void LAppLive2DManager::onDrag(float x, float y)//для touch
+//{
+//	for (int i = 0; i<models.size(); i++)
+//	{
+//		LAppModel* model = getModel(i);
+//
+//		model->setDrag(x, y);
+//
+//	}
+//}
+//
+//
+//void LAppLive2DManager::onTap(float x, float y)//для touch
+//{
+//	if (LAppDefine::DEBUG_LOG)log("tapEvent");
+//
+//
+//	for (int i = 0; i<models.size(); i++)
+//	{
+//		if (models[i]->hitTest(HIT_AREA_NAME_HEAD, x, y))
+//		{
+//			if (LAppDefine::DEBUG_LOG)log("face");
+//			models[i]->setRandomExpression();
+//		}
+//		else if (models[i]->hitTest(HIT_AREA_NAME_BODY, x, y))
+//		{
+//			if (LAppDefine::DEBUG_LOG)log("body");
+//			models[i]->startRandomMotion(MOTION_GROUP_TAP_BODY, PRIORITY_NORMAL);
+//		}
+//	}
+//}

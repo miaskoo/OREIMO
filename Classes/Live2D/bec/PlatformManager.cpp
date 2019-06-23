@@ -37,7 +37,7 @@ void PlatformManager::releaseBytes(void* data)
 }
 
 ALive2DModel* PlatformManager::loadLive2DModel(const char* path)
-{//я так и не понял почему это находится в файлах проекта как sample - но этот файлик юзают функции из файликов framework
+{
 	size_t size;
 	unsigned char* buf = loadBytes(path,&size);
 	

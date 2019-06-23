@@ -11,7 +11,8 @@
 //Live2D framework
 #include "L2DMatrix44.h"
 #include "L2DViewMatrix.h"
-#include "Live2D/LAppLive2DManager.h"
+
+//#include "TouchManager.h"
 
 #include "2d/CCSprite.h"
 #include "cocos2d.h"
@@ -23,19 +24,29 @@ class LAppView :public cocos2d::DrawNode
 public:
 	LAppView();
 	virtual ~LAppView(){}
-
+	//virtual bool init();
 	virtual void onEnter();
 	virtual void onExit();
 	
 	virtual void draw(cocos2d::Renderer *renderer, const cocos2d::Mat4 &transform, uint32_t flags) override;
 	void onDraw(const cocos2d::Mat4 &transform, uint32_t flags);
 	
-	static LAppView* createDrawNode(LAppLive2DManager* temp);
-	LAppLive2DManager* Live2DMgr;
-private:
+	//void onTouchesBegan(const std::vector<cocos2d::Touch*>& touches, cocos2d::Event *event);
+ //   void onTouchesMoved(const std::vector<cocos2d::Touch*>& touches, cocos2d::Event *event);
+ //   void onTouchesEnded(const std::vector<cocos2d::Touch*>& touches, cocos2d::Event *event);
+	
+	//void updateViewMatrix(float dx ,float dy ,float cx ,float cy ,float scale);
+	//float transformViewX(float deviceX);
+	//float transformViewY(float deviceY);
+	//float transformScreenX(float deviceX);
+	//float transformScreenY(float deviceY);
+	
+	static LAppView* createDrawNode();
 
-	live2d::framework::L2DMatrix44* deviceToScreen;
-    live2d::framework::L2DViewMatrix* viewMatrix;
+private:
+//	TouchManager* touchMgr;
+	//live2d::framework::L2DMatrix44* deviceToScreen;
+  //  live2d::framework::L2DViewMatrix* viewMatrix;
 	
 protected:
 	cocos2d::CustomCommand _customCommand;

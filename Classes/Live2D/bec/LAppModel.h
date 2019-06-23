@@ -14,7 +14,9 @@
 #include "L2DBaseModel.h"
 #include "L2DTargetPoint.h"
 #include "L2DStandardID.h"
-
+#include <map>
+#include <memory>
+#include <vector>
 //Live2D Lib
 #include "Live2DModelOpenGL.h"
 
@@ -26,7 +28,11 @@ class LAppModel : public live2d::framework::L2DBaseModel
 {
 private:
     ModelSetting* modelSetting;
+
 	const char* modelHomeDir;
+	std::vector<std::string> idle_expression;
+	int num_idle = 0;
+	int num_action = 0;
 public:
     LAppModel();
     virtual ~LAppModel(void);
@@ -45,15 +51,27 @@ public:
 	//void setViewMatrix(float matrix[16]);
 	
 	
+
 	//Animation
     int startMotion(const char group[],int no,int priority);
-	int startRandomMotion(const char name[],int priority);
+	//int startRandomMotion(const char name[],int priority);
+	void setIdle(int no);
+	void setdeferredIdle(int no, std::vector<std::string> temp_idle_expression);
+	void setAction(int no);
+	void set_CustomAction();
 	void setExpression(const char name[]);
-	void setExpression(std::vector<std::string>);
+	//void setExpression(const char name1[], const char name2[]);
+//	void setExpression(const char name1[], const char name2[], const char name3[]);
+//	void setExpression(const char name1[], const char name2[], const char name3[], const char name4[]);
+//	void setExpression(const char name1[], const char name2[], const char name3[], const char name4[], const char name5[]);
+	ModelSetting* GetSetting()
+	{
+		return modelSetting;
+	}
 	//void setRandomExpression();
-
+    
 	//Other
-	//virtual bool hitTest(const char pid[],float testX,float testY);
+	std::map< std::string, std::shared_ptr<std::string>> dir_expression;// дирректория пресетов
 };
 
 
