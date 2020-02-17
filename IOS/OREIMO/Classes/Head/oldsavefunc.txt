@@ -1,0 +1,2436 @@
+
+int save_script()// возвращает ноль если все хорошо
+{
+	const size_t size_dir = 260;
+	wchar_t file_dir[size_dir];
+
+	memset(file_dir, NULL, sizeof(file_dir));
+	if (file_winapi(file_dir, size_dir) == false)
+	{
+		SetCurrentDirectory(main_dir);
+		return 3;
+	}
+	else
+	{
+		SetCurrentDirectory(main_dir);
+	}
+
+	string cur_name_script = "";//dir_save_script + "cus_script " + to_string(time(0));
+
+
+	for (int n = 0; n < sizeof(file_dir); n++)
+	{
+		if (file_dir[n] == '\0')
+			break;
+		cur_name_script += file_dir[n];
+	}
+	if (cur_name_script.length() == 0)
+		return 3;
+
+	ofstream file(cur_name_script, ios::binary);
+	vector<unsigned char>buff;
+
+	if (!file)
+		return 2;
+
+#ifdef LOG_SAVE
+	//log_dir += ".log" + '"';
+	ofstream log(cur_name_script + ".log", ios::binary);
+	vector<string>buff_log;
+	string snos = string({ 0x0A }) + string({ 0x0D });
+#endif
+
+	auto filed_exept = [&]() {
+#ifdef LOG_SAVE
+		buff_log.push_back(snos);
+		buff_log.push_back("Неудача");
+		for (int _n = 0; _n < buff_log.size(); _n++)
+		{
+			log << buff_log[_n];
+		}
+		file.close();
+		log.close();
+#endif
+	};
+
+
+	int n = 0;
+	int i = 0;
+	int p = 0;
+	for (p = 0; p < cur_page_count; p++)
+	{
+		auto gpi([=]()
+		{
+			return cur_page_data[p];
+		});
+		auto sign = ([=](int &x, int &y) {
+			return &gpi()->intedex_data[x][y];
+		});
+
+
+		buff.push_back(0x00);//создаем байт размерности страницы
+		int bite_page = buff.size() - 1;
+#ifdef LOG_SAVE
+		buff_log.push_back(snos);
+		buff_log.push_back("Начата запись страницы " + to_string(p + 1) + " по байту " + to_string(bite_page));
+#endif
+		int size_page = 1;//размер странички увеличивает каждый бокс своей размерностью
+		for (n = 0; n < gpi()->cur_box_count; n++)
+		{
+
+			buff.push_back(0x00);//создаем байт размерности бокса
+			int bite_box = buff.size() - 1;
+			int size_box = 1;//размер бокса увеличивает каждый объект своей размерностью
+#ifdef LOG_SAVE
+			buff_log.push_back(snos);
+			buff_log.push_back("Начата запись бокса " + to_string(n + 1) + " по байту " + to_string(bite_box));
+#endif
+			for (i = 0; i < gpi()->cur_row_count[n]; i++)
+			{
+
+				buff.push_back(0x00);//создаем байт размерности объекта бокса
+				int bite_obj = buff.size() - 1;//номер байта в котором хранится информация о размере объекта
+				int size_obj = 1;//размер объекта увеличивается от каждого байта
+#ifdef LOG_SAVE
+				buff_log.push_back(snos);
+				buff_log.push_back("Начата запись объекта " + to_string(i + 1) + " по байту " + to_string(bite_obj));
+#endif
+				if (sign(n, i)->my_type != type_struct::none)
+				{
+
+					switch (sign(n, i)->my_type)
+					{
+					case type_struct::scene:
+					{
+#ifdef LOG_SAVE
+						buff_log.push_back(snos);
+						buff_log.push_back("Сцена");
+#endif
+						buff.push_back(0x01);//байт типа объекта
+						size_obj++;
+
+						switch (sign(n, i)->my_inter)
+						{
+						case swich:
+						{
+#ifdef LOG_SAVE
+							buff_log.push_back(snos);
+							buff_log.push_back("Свич");
+#endif
+							buff.push_back(0x01);//байт типа взаимодействия
+
+							if (sign(n, i)->my_swich == SIMPLE)//байт подтипа взаимодействия
+								buff.push_back(0x01);
+							else if (sign(n, i)->my_swich == NULL_TIME)
+								buff.push_back(0x02);
+							else
+							{
+#ifdef LOG_SAVE
+								buff_log.push_back(string({ 0x0A }) + string({ 0x0D }));
+								buff_log.push_back("Ошибка сохранения, неизвестный свич сцены");
+								filed_exept();
+								return 1;
+#endif
+							}
+
+
+							if (sign(n, i)->data1 == "BG")//байт дирректории
+								buff.push_back(0x01);
+							else if (sign(n, i)->data1 == "CG")
+								buff.push_back(0x02);
+							else
+							{
+#ifdef LOG_SAVE
+								buff_log.push_back(snos);
+								buff_log.push_back("Ошибка сохранения, неизвестная ключевая дирректория сцены");
+								filed_exept();
+#endif
+								return 1;
+							}
+
+							if (sign(n, i)->data2 != "")//и байт номера картинки
+								buff.push_back(string_to_int(sign(n, i)->data2)); //БУДЕТ РАБОТАТЬ ТОЛЬКО С ЦИФРАМИ
+							else
+							{
+#ifdef LOG_SAVE
+								buff_log.push_back(snos);
+								buff_log.push_back("Ошибка сохранения, нет данных для создания сцены");
+								filed_exept();
+#endif
+								return 1;
+							}
+
+							size_obj += 4;//на 4 у свича
+							break;
+						}
+						case action:
+						{
+#ifdef LOG_SAVE
+							buff_log.push_back(snos);
+							buff_log.push_back("Экшон");
+#endif
+							buff.push_back(0x02);//байт типа взаимодействия
+
+
+							switch (sign(n, i)->my_action)
+							{
+							case type_action::SHAKE:
+							{
+								buff.push_back(0x01);//байт подтипа взаимодействия
+								break;
+							}
+							case type_action::PUNCH:
+							{
+								buff.push_back(0x02);
+								break;
+							}
+							case type_action::BLACK_IN:
+							{
+								buff.push_back(0x03);
+								break;
+							}
+							case type_action::BLACK_OUT:
+							{
+								buff.push_back(0x04);
+								break;
+							}
+							case type_action::POLOS_IN:
+							{
+								buff.push_back(0x05);
+								break;
+							}
+							case type_action::POLOS_OUT:
+							{
+								buff.push_back(0x06);
+								break;
+							}
+							case type_action::SLASH_WS_IN:
+							{
+								buff.push_back(0x07);
+								break;
+							}
+							case type_action::SLASH_WS_OUT:
+							{
+								buff.push_back(0x08);
+								break;
+							}
+							case type_action::SLASH_AD_IN:
+							{
+								buff.push_back(0x09);
+								break;
+							}
+							case type_action::SLASH_AD_OUT:
+							{
+								buff.push_back(0x10);
+								break;
+							}
+							case type_action::MBLACK_IN:
+							{
+								buff.push_back(0x11);
+								break;
+							}
+							case type_action::MBLACK_OUT:
+							{
+								buff.push_back(0x12);
+								break;
+							}
+							case type_action::MPOLOS_IN:
+							{
+								buff.push_back(0x13);
+								break;
+							}
+							case type_action::MPOLOS_OUT:
+							{
+								buff.push_back(0x14);
+								break;
+							}
+							case type_action::MSLASH_WS_IN:
+							{
+								buff.push_back(0x15);
+								break;
+							}
+							case type_action::MSLASH_WS_OUT:
+							{
+								buff.push_back(0x16);
+								break;
+							}
+							case type_action::MSLASH_AD_IN:
+							{
+								buff.push_back(0x17);
+								break;
+							}
+							case type_action::MSLASH_AD_OUT:
+							{
+								buff.push_back(0x18);
+								break;
+							}
+							default:
+							{
+#ifdef LOG_SAVE
+								buff_log.push_back(snos);
+								buff_log.push_back("Ошибка сохранения, неизвестный экшон сцены");
+								filed_exept();
+#endif
+								return 1;
+								break;
+							}
+							}
+
+							size_obj += 2;//на 2 у экшона
+							break;
+						}
+						default:
+#ifdef LOG_SAVE
+							buff_log.push_back(snos);
+							buff_log.push_back("Ошибка сохранения, неизвестное взаимодейсвие с объектом");
+#endif
+							break;
+						}
+						break;
+					}
+					case type_struct::sprite:
+					{
+#ifdef LOG_SAVE
+						buff_log.push_back(snos);
+						buff_log.push_back("Спрайт");
+#endif
+						buff.push_back(0x02);//байт типа объекта
+						size_obj++;
+
+
+						switch (sign(n, i)->my_inter)
+						{
+						case swich:
+						{
+#ifdef LOG_SAVE
+							buff_log.push_back(snos);
+							buff_log.push_back("Свич");
+#endif
+							buff.push_back(0x01);//байт типа взаимодействия
+
+							if (sign(n, i)->my_name != any_enum::NONE)
+							{
+								switch (sign(n, i)->my_name)// имя спрайта как цифра
+								{
+								case any_enum::AY:
+									buff.push_back(0x01);
+									break;
+								case any_enum::KI:
+									buff.push_back(0x02);
+									break;
+								case any_enum::DA:
+									buff.push_back(0x03);
+									break;
+								case any_enum::AK:
+									buff.push_back(0x04);
+									break;
+								case any_enum::KA:
+									buff.push_back(0x05);
+									break;
+								case any_enum::KU:
+									buff.push_back(0x06);
+									break;
+								case any_enum::MA:
+									buff.push_back(0x07);
+									break;
+								case any_enum::RO:
+									buff.push_back(0x08);
+									break;
+								case any_enum::SA:
+									buff.push_back(0x09);
+									break;
+								case any_enum::SE:
+									buff.push_back(0x10);
+									break;
+								case any_enum::YO:
+									buff.push_back(0x11);
+									break;
+								default:
+#ifdef LOG_SAVE
+									buff_log.push_back(snos);
+									buff_log.push_back("Ошибка сохранения, неизвестное имя спрайта");
+									filed_exept();
+#endif
+									return 1;
+									break;
+								}
+							}
+
+							if (sign(n, i)->data1 != "" && sign(n, i)->data2 != "" && sign(n, i)->data3 != "" && sign(n, i)->hide == false)
+							{
+								//текущий тип запись цифрой
+								if (sign(n, i)->data1 == "C")
+								{
+									buff.push_back(0x01);
+								}
+								else if (sign(n, i)->data1 == "L")
+								{
+									buff.push_back(0x02);
+								}
+								else if (sign(n, i)->data1 == "R")
+								{
+									buff.push_back(0x03);
+								}
+								else if (sign(n, i)->data1 == "C_COSP")
+								{
+									buff.push_back(0x11);
+								}
+								else if (sign(n, i)->data1 == "L_COSP")
+								{
+									buff.push_back(0x12);
+								}
+								else if (sign(n, i)->data1 == "R_COSP")
+								{
+									buff.push_back(0x13);
+								}
+								else if (sign(n, i)->data1 == "C_OLD")
+								{
+									buff.push_back(0x21);
+								}
+								else if (sign(n, i)->data1 == "L_OLD")
+								{
+									buff.push_back(0x22);
+								}
+								else if (sign(n, i)->data1 == "R_OLD")
+								{
+									buff.push_back(0x23);
+								}
+								else
+								{
+#ifdef LOG_SAVE
+									buff_log.push_back(snos);
+									buff_log.push_back("Ошибка сохранения, неизвестный тип текстуры спрайта");
+									filed_exept();
+#endif
+									return 1;
+								}
+
+
+								if (is_int(sign(n, i)->data2) == false || is_int(sign(n, i)->data3) == false)
+								{
+#ifdef LOG_SAVE
+									buff_log.push_back(snos);
+									buff_log.push_back("Ошибка сохранения, неизвестный номер текстуры или номер эмоции");
+									filed_exept();
+#endif
+								}
+
+								buff.push_back(string_to_int(sign(n, i)->data2)); //номер текстурки этого типа 
+								buff.push_back(string_to_int(sign(n, i)->data3)); //номер эмоции типа
+
+
+								switch (sign(n, i)->my_position)//его позиция
+								{
+								case any_enum::left:
+									buff.push_back(0x01);
+									break;
+								case any_enum::left_centr:
+									buff.push_back(0x02);
+									break;
+								case any_enum::centr:
+									buff.push_back(0x03);
+									break;
+								case any_enum::right_centr:
+									buff.push_back(0x04);
+									break;
+								case any_enum::right:
+									buff.push_back(0x05);
+									break;
+								default:
+#ifdef LOG_SAVE
+									buff_log.push_back(snos);
+									buff_log.push_back("Ошибка сохранения, неизвестная позиция спрайта");
+									filed_exept();
+#endif
+									return 1;
+									break;
+								}
+
+//								switch (sign(n, i)->my_swich)//его свич
+//								{//LTR, RTL, SIMPLE
+//								case SIMPLE:
+//									buff.push_back(0x01);
+//									break;
+//								case LTR:
+//									buff.push_back(0x02);
+//									break;
+//								case RTL:
+//									buff.push_back(0x03);
+//									break;
+//								case NULL_TIME:
+//									buff.push_back(0x04);
+//									break;
+//								case DTT:
+//									buff.push_back(0x05);
+//									break;
+//								default:
+//#ifdef LOG_SAVE
+//									buff_log.push_back(snos);
+//									buff_log.push_back("Ошибка сохранения, неизвестный тип свича спрайта");
+//#endif
+//									return 1;
+//									break;
+//								}
+								//ALERT - перенес ниже
+
+							}
+							else if (sign(n, i)->hide == true)
+							{
+								buff.push_back(0x88);
+								buff.push_back(0xFF);
+								buff.push_back(0xFF);
+								buff.push_back(0xFF);
+								buff.push_back(0xFF);
+							//	buff.push_back(0xFF);
+							}
+							else
+							{
+#ifdef LOG_SAVE
+								buff_log.push_back(snos);
+								buff_log.push_back("Ошибка сохранения, недостаточно данных для создания спрайта");
+								filed_exept();
+#endif
+								return 1;
+							}
+
+							switch (sign(n, i)->my_swich)//его свич
+							{//LTR, RTL, SIMPLE
+							case SIMPLE:
+								buff.push_back(0x01);
+								break;
+							case LTR:
+								buff.push_back(0x02);
+								break;
+							case RTL:
+								buff.push_back(0x03);
+								break;
+							case NULL_TIME:
+								buff.push_back(0x04);
+								break;
+							case DTT:
+								buff.push_back(0x05);
+								break;
+							default:
+#ifdef LOG_SAVE
+								buff_log.push_back(snos);
+								buff_log.push_back("Ошибка сохранения, неизвестный тип свича спрайта");
+#endif
+								return 1;
+								break;
+							}
+
+							size_obj += 7;//на 7 у свича
+							break;
+						}
+						case action:
+						{
+#ifdef LOG_SAVE
+							buff_log.push_back(snos);
+							buff_log.push_back("Экшон");
+#endif
+							buff.push_back(0x02);;//байт типа взаимодействия
+							size_obj++;
+
+							switch (sign(n, i)->my_name)// имя спрайта как цифра
+							{
+							case any_enum::AY:
+								buff.push_back(0x01);
+								break;
+							case any_enum::KI:
+								buff.push_back(0x02);
+								break;
+							case any_enum::DA:
+								buff.push_back(0x03);
+								break;
+							case any_enum::AK:
+								buff.push_back(0x04);
+								break;
+							case any_enum::KA:
+								buff.push_back(0x05);
+								break;
+							case any_enum::KU:
+								buff.push_back(0x06);
+								break;
+							case any_enum::MA:
+								buff.push_back(0x07);
+								break;
+							case any_enum::RO:
+								buff.push_back(0x08);
+								break;
+							case any_enum::SA:
+								buff.push_back(0x09);
+								break;
+							case any_enum::SE:
+								buff.push_back(0x10);
+								break;
+							case any_enum::YO:
+								buff.push_back(0x11);
+								break;
+							default:
+#ifdef LOG_SAVE
+								buff_log.push_back(snos);
+								buff_log.push_back("Ошибка сохранения, неизвестное имя спрайта");
+								filed_exept();
+#endif
+								return 1;
+								break;
+							}
+							size_obj++;
+
+							switch (sign(n, i)->my_action)//байт подтипа взаимодействия
+							{
+							case MINIJUMP:
+								buff.push_back(0x01);
+								break;
+							case JUMP:
+								buff.push_back(0x02);
+								break;
+							case scale_lit:
+								buff.push_back(0x03);
+								break;
+							case scale_mid:
+								buff.push_back(0x04);
+								break;
+							case scale_big:
+								buff.push_back(0x05);
+								break;
+							case POS_C:
+								buff.push_back(0x06);
+								break;
+							case POS_R:
+								buff.push_back(0x07);
+								break;
+							case POS_RC:
+								buff.push_back(0x08);
+								break;
+							case POS_L:
+								buff.push_back(0x09);
+								break;
+							case POS_LC:
+								buff.push_back(0x10);
+								break;
+							default:
+#ifdef LOG_SAVE
+								buff_log.push_back(snos);
+								buff_log.push_back("Ошибка сохранения, неизвестное дейсвие спрайта");
+								filed_exept();
+#endif
+								return 1;
+								break;
+							}
+
+							size_obj++;
+							//на 3 у экшона
+							break;
+						}
+						default:
+#ifdef LOG_SAVE
+							buff_log.push_back(snos);
+							buff_log.push_back("Ошибка сохранения, неизвестное взаимодейсвие с объектом");
+							filed_exept();
+#endif							
+							return 1;
+							break;
+						}
+						break;
+					}
+					case type_struct::text:
+					{
+#ifdef LOG_SAVE
+						buff_log.push_back(snos);
+						buff_log.push_back("Текст");
+#endif
+						buff.push_back(0x03);//байт типа объекта
+						size_obj++;
+
+						switch (sign(n, i)->my_inter)
+						{
+						case swich://ПОКА ЧТО ТЕСТОВОЕ ИБО БРАТИЕ ТЕКСТА НЕ НАСТРОЕНО
+						{
+#ifdef LOG_SAVE
+							buff_log.push_back(snos);
+							buff_log.push_back("Свич");
+#endif
+							buff.push_back(0x01);//байт типа взаимодействия			
+							int size_name = 1; //байты имени
+							int size_text = 1; //байты текста
+							buff.push_back(size_name);
+							buff.push_back(size_text);
+							size_obj += 3;
+							break;
+						}
+						case action:
+						{
+#ifdef LOG_SAVE
+							buff_log.push_back(snos);
+							buff_log.push_back("Экшон");
+#endif
+							buff.push_back(0x02);//байт типа взаимодействия
+
+							if (sign(n, i)->my_action == SHOW_BOX)//байт подтипа взаимодействия
+								buff.push_back(0x01);
+							else if (sign(n, i)->my_action == HIDE_BOX)
+								buff.push_back(0x02);
+							else
+							{
+
+#ifdef LOG_SAVE
+								buff_log.push_back(snos);
+								buff_log.push_back("Ошибка сохранения, неизвестный экшон фона текста");
+								filed_exept();
+#endif		
+								return 1;
+							}
+
+							size_obj += 2;//на 2 у экшона
+							break;
+						}
+						default:
+#ifdef LOG_SAVE
+							buff_log.push_back(snos);
+							buff_log.push_back("Ошибка сохранения, неизвестное взаимодейсвие с объектом");
+							filed_exept();
+#endif
+							return 1;
+							break;
+						}
+						break;
+					}
+					case type_struct::ore:
+					{
+						break;
+					}
+					case type_struct::condition:
+					{
+						break;
+					}
+					case type_struct::audio:
+					{
+#ifdef LOG_SAVE
+						buff_log.push_back(snos);
+						buff_log.push_back("Аудио");
+#endif
+						buff.push_back(0x06);//байт типа объекта
+						size_obj++;
+						if (sign(n, i)->my_inter == action)
+						{
+							buff.push_back(0x02);//байт типа взаимодействия
+							size_obj++;
+
+							if (sign(n, i)->data1 != "" && sign(n, i)->data2 != "")
+							{
+								buff.push_back(string_to_int(sign(n, i)->data1) + 1); //байт подтипа объекта
+								buff.push_back(string_to_int(sign(n, i)->data2) + 1); //байт номера аудишки
+								size_obj += 2;
+							}
+							else
+							{
+#ifdef LOG_SAVE
+								buff_log.push_back(snos);
+								buff_log.push_back("Ошибка сохранения, нет данных файла");
+								filed_exept();
+#endif
+								return 1;
+							}
+						}
+						else
+						{
+#ifdef LOG_SAVE
+							buff_log.push_back(snos);
+							buff_log.push_back("Ошибка сохранения, неизвестное взаимодейсвие с объектом");
+							filed_exept();
+#endif
+							return 1;
+						}
+						break;
+					}
+					case type_struct::teleport:
+					{
+#ifdef LOG_SAVE
+						buff_log.push_back(snos);
+						buff_log.push_back("Смещение");
+#endif
+
+						buff.push_back(0x07);//байт типа объекта
+						size_obj++;
+
+						switch (sign(n, i)->my_inter)
+						{
+						case swich:
+						{
+#ifdef LOG_SAVE
+							buff_log.push_back(snos);
+							buff_log.push_back("На страницу");
+#endif
+							buff.push_back(0x01);//байт типа взаимодействия			
+							size_obj++;
+
+							int num_page = string_to_int(sign(n, i)->data1);
+
+							int size_big = num_page / 255;
+							int size_min = num_page % 255;
+
+							buff.push_back(char(size_big));
+							buff.push_back(char(size_min));
+							size_obj += 2;
+
+
+							break;
+						}
+						case action:
+						{
+#ifdef LOG_SAVE
+							buff_log.push_back(snos);
+							buff_log.push_back("На скрипт");
+#endif
+							buff.push_back(0x02);//байт типа взаимодействия
+							size_obj++;
+
+							int size_buff = sign(n, i)->data1.length();
+
+							buff.push_back(size_buff);
+							size_obj++;
+
+							for (int z = 0; z < size_buff; z++)
+							{
+								buff.push_back(sign(n, i)->data1[z]);
+								size_obj++;
+							}
+
+
+							break;
+						}
+						default:
+#ifdef LOG_SAVE
+							buff_log.push_back(snos);
+							buff_log.push_back("Ошибка сохранения, неизвестное взаимодейсвие с объектом");
+							filed_exept();
+#endif
+							return 1;
+							break;
+						}
+						break;
+					}
+					case type_struct::live2d:
+					{
+#ifdef LOG_SAVE
+						buff_log.push_back(snos);
+						buff_log.push_back("Модель Live2D");
+#endif
+
+						buff.push_back(0x08);//байт типа объекта
+						size_obj++;
+
+
+						switch (sign(n, i)->my_inter)
+						{
+						case swich:
+						{
+#ifdef LOG_SAVE
+							buff_log.push_back(snos);
+							buff_log.push_back("SWICH");
+#endif
+
+							buff.push_back(0x01);//байт типа взаимодействия			
+							size_obj++;
+
+							switch (sign(n, i)->my_name)// имя спрайта как цифра
+							{
+							case any_enum::AY:
+								buff.push_back(0x01);
+								break;
+							case any_enum::KI:
+								buff.push_back(0x02);
+								break;
+							case any_enum::KA:
+								buff.push_back(0x05);
+								break;
+							case any_enum::KU:
+								buff.push_back(0x06);
+								break;
+							case any_enum::MA:
+								buff.push_back(0x07);
+								break;
+							case any_enum::SA:
+								buff.push_back(0x09);
+								break;
+							default:
+#ifdef LOG_SAVE
+								buff_log.push_back(snos);
+								buff_log.push_back("Ошибка сохранения, неизвестное имя модели");
+								filed_exept();
+#endif
+								return 1;
+								break;
+							}
+							size_obj++;
+
+							if (sign(n, i)->data1.length() != 1 || is_int(sign(n, i)->data1) == false)
+							{
+#ifdef LOG_SAVE
+								buff_log.push_back(snos);
+								buff_log.push_back("Ошибка сохранения, данные текстуры модели повреждены");
+								filed_exept();
+#endif
+								return 1;
+							}
+
+							buff.push_back(sign(n, i)->data1[0]);
+							size_obj++;
+
+							if (sign(n, i)->data3.length() != any_enum::size_agr_model - 1)
+							{
+								buff_log.push_back(snos);
+								buff_log.push_back("Ошибка сохранения, данные аргументов модели повреждены");
+								filed_exept();
+							}
+
+							for (int z = 0; z < sign(n, i)->data3.length(); z++)
+							{
+								buff.push_back(sign(n, i)->data3[z]);
+								size_obj++;
+							
+							}
+						//	size_obj+= any_enum::size_agr_model-1;
+
+							break;
+						}
+						case action:
+						{
+#ifdef LOG_SAVE
+							buff_log.push_back(snos);
+							buff_log.push_back("ACTION");
+#endif
+
+							buff.push_back(0x02);//байт типа взаимодействия			
+							size_obj++;
+
+							switch (sign(n, i)->my_name)// имя спрайта как цифра
+							{
+							case any_enum::AY:
+								buff.push_back(0x01);
+								break;
+							case any_enum::KI:
+								buff.push_back(0x02);
+								break;
+							case any_enum::KA:
+								buff.push_back(0x05);
+								break;
+							case any_enum::KU:
+								buff.push_back(0x06);
+								break;
+							case any_enum::MA:
+								buff.push_back(0x07);
+								break;
+							case any_enum::SA:
+								buff.push_back(0x09);
+								break;
+							default:
+#ifdef LOG_SAVE
+								buff_log.push_back(snos);
+								buff_log.push_back("Ошибка сохранения, неизвестное имя модели");
+								filed_exept();
+#endif
+								return 1;
+								break;
+							}
+							size_obj++;
+
+							switch (sign(n, i)->my_action)
+							{
+							case type_action::scale_lit:
+							{
+								buff.push_back(0x01);
+								break;
+							}
+							case type_action::scale_mid:
+							{
+								buff.push_back(0x02);
+								break;
+							}
+							case type_action::scale_big:
+							{
+								buff.push_back(0x03);
+								break;
+							}
+							case type_action::LIVE2D_MOTION:
+							{
+								buff.push_back(0x04);
+								break;
+							}
+							default:
+#ifdef LOG_SAVE
+								buff_log.push_back(snos);
+								buff_log.push_back("Ошибка сохранения, неизвестный ACTION модели");
+								filed_exept();
+#endif
+								return 1;
+								break;
+							}
+							size_obj++;
+
+							if (sign(n, i)->data1.length() != 1 || is_int(sign(n, i)->data1) == false)
+							{
+#ifdef LOG_SAVE
+								buff_log.push_back(snos);
+								buff_log.push_back("Ошибка сохранения, данные ACTION модели повреждены");
+								filed_exept();
+#endif
+								return 1;
+							}
+
+							buff.push_back(sign(n, i)->data1[0]);
+							size_obj++;
+
+							break; 
+						}
+						default:
+#ifdef LOG_SAVE
+							buff_log.push_back(snos);
+							buff_log.push_back("Ошибка сохранения, неизвестное взаимодейсвие с объектом");
+							filed_exept();
+#endif
+							return 1;
+							break;
+						}
+						break;
+					}
+					default:
+#ifdef LOG_SAVE
+						buff_log.push_back(snos);
+						buff_log.push_back("Ошибка сохранения, неизвестный тип объекта");
+						filed_exept();
+#endif
+						return 1;
+						break;
+					}
+
+
+				}
+				buff[bite_obj] = size_obj;
+				size_box += size_obj;
+
+			}
+#ifdef LOG_SAVE
+			buff_log.push_back(snos);
+			buff_log.push_back("Успешная запись бокса");
+#endif
+
+			buff[bite_box] = size_box;
+			size_page += size_box;
+
+		}
+		buff[bite_page] = size_page;
+
+#ifdef LOG_SAVE
+		buff_log.push_back(snos);
+		buff_log.push_back("Успешная запись страницы");
+#endif
+
+	}
+#ifdef LOG_SAVE
+	buff_log.push_back(snos);
+	buff_log.push_back("Запись в файл");
+#endif
+	for (int _n = 0; _n < buff.size(); _n++)
+	{
+		file << buff[_n];
+	}
+#ifdef LOG_SAVE
+	buff_log.push_back(snos);
+	buff_log.push_back("Успешно");
+	for (int _n = 0; _n < buff_log.size(); _n++)
+	{
+		log << buff_log[_n];
+	}
+#endif
+	file.close();
+	log.close();
+	return 0;
+}
+
+int load_script(std::string custom_dir)
+{
+	const size_t size_dir = 260;
+	wchar_t file_dir[size_dir];
+	string cur_name_script = "";
+	memset(file_dir, NULL, size_dir);
+
+	creator_obj = nullptr;
+	map<int, page_obj*> ::const_iterator cur_iter = cur_page_data.cbegin();
+	while (cur_iter != cur_page_data.cend())
+	{
+		delete cur_iter->second;
+		cur_iter++;
+	}
+	cur_page_data.clear();
+	cur_page_count = 0;//отчищаем что возможно
+	cur_page = 0;
+	if (custom_dir.length() == 0)
+	{
+		if (file_winapi(file_dir, size_dir, true) == false)
+		{
+			SetCurrentDirectory(main_dir);
+			return 3;
+		}
+		else
+		{
+			SetCurrentDirectory(main_dir);
+		}
+
+
+		for (int n = 0; n < sizeof(file_dir); n++)
+		{
+			if (file_dir[n] == '\0')
+				break;
+			cur_name_script += file_dir[n];
+		}
+	}
+	else//если грузим из скрипта - пытаемся загрузить из файла в папке скриптов
+	{
+		cur_name_script = dir_load_script + custom_dir;
+	}
+
+	if (cur_name_script.length() == 0)
+		return 3;
+
+	ifstream file(cur_name_script, ios::binary);
+
+	if (!file)
+		return 2;
+
+#ifdef LOG_LOAD
+	ofstream log(cur_name_script + ".log", ios::binary);
+	vector<string>buff_log;
+	string snos = string({ 0x0A }) + string({ 0x0D });
+#endif
+
+
+	unsigned char cur_bite;//байт для буфера взаимодействуем только с ним
+	int n = 0;
+
+	auto Get_cur_bite([&]()->int {
+		char temp;
+		file.read(&temp, 1);
+		cur_bite = static_cast<unsigned char>(temp);
+		n++;
+		if (file.eof())
+		{
+#ifdef LOG_LOAD
+			buff_log.push_back(snos);
+			buff_log.push_back("Конец файла");
+#endif
+			return 1;
+		}//недолжны приходить в конец
+		return 0;
+	});
+
+	//auto HEX_TO_DEC([=](unsigned char hx)
+	//{
+	//	int s = 0;
+
+	//	while (hx != 0x00)
+	//	{
+	//		hx -= 0x01;
+	//		s++;
+	//	}
+
+	//	return s;
+	//});
+
+	auto filed_exept = [&]() {
+#ifdef LOG_LOAD
+		buff_log.push_back(snos);
+		buff_log.push_back("Неудача");
+		for (int _n = 0; _n < buff_log.size(); _n++)
+		{
+			log << buff_log[_n];
+		}
+		file.close();
+		log.close();
+#endif
+	};
+
+	while (Get_cur_bite() != 1)
+	{
+		page_obj cur_load_page = page_obj{};
+
+		int size_page = cur_bite;//размер странички увеличивает каждый бокс своей размерностью
+#ifdef LOG_LOAD
+		buff_log.push_back(snos);
+		buff_log.push_back("Начата загрузка страницы " + to_string(cur_page_count) + " по байту " + to_string(file.tellg()));
+#endif
+		for (n = 0; n < size_page; n++)
+		{
+			if (Get_cur_bite() == 1)
+			{
+				filed_exept();
+				return 1;
+			}
+			int size_box = cur_bite;
+			cur_load_page.cur_row_count[cur_load_page.cur_box_count] = 0;
+			cur_load_page.cur_row_smeh[cur_load_page.cur_box_count] = 0;
+			cur_load_page.visable_id_button[cur_load_page.cur_box_count][0] = false;
+			cur_load_page.visable_id_button[cur_load_page.cur_box_count][1] = false;
+			cur_load_page.visable_id_button[cur_load_page.cur_box_count][2] = false;
+			cur_load_page.visable_id_button[cur_load_page.cur_box_count][3] = false;
+#ifdef LOG_LOAD
+			buff_log.push_back(snos);
+			buff_log.push_back("Начата загрузка бокса " + to_string(cur_load_page.cur_box_count) + " по байту " + to_string(file.tellg()));
+#endif
+			for (int _n = 0; _n < size_box; _n++)
+			{
+				if (Get_cur_bite() == 1)
+				{
+					filed_exept();
+					return 1;
+				}
+				int size_obj = cur_bite;//получаем размерность обжа
+										//далее попробуем получить преданные для обжа(его тип и его взаимодействие)
+				data_obj cur_obj = data_obj{};
+
+#ifdef LOG_LOAD
+				buff_log.push_back(snos);
+				buff_log.push_back("Начата загрузка объекта " + to_string(cur_load_page.cur_row_count[cur_load_page.cur_box_count]) + " по байту " + to_string(file.tellg()));
+#endif
+
+				if (Get_cur_bite() == 1)
+				{
+					filed_exept();
+					return 1;
+				}
+
+				switch (cur_bite)
+				{
+				case 0x01:
+					cur_obj.my_type = type_struct::scene;
+#ifdef LOG_LOAD
+					buff_log.push_back(snos);
+					buff_log.push_back("Объект scene");
+#endif
+					break;
+				case 0x02:
+					cur_obj.my_type = type_struct::sprite;
+#ifdef LOG_LOAD
+					buff_log.push_back(snos);
+					buff_log.push_back("Объект sprite");
+#endif
+					break;
+				case 0x03:
+					cur_obj.my_type = type_struct::text;
+#ifdef LOG_LOAD
+					buff_log.push_back(snos);
+					buff_log.push_back("Объект text");
+#endif
+					break;
+				case 0x06:
+					cur_obj.my_type = type_struct::audio;
+#ifdef LOG_LOAD
+					buff_log.push_back(snos);
+					buff_log.push_back("Объект audio");
+#endif
+					break;
+				case 0x07:
+					cur_obj.my_type = type_struct::teleport;
+#ifdef LOG_LOAD
+					buff_log.push_back(snos);
+					buff_log.push_back("Объект teleport");
+#endif
+					break;
+				case 0x08:
+					cur_obj.my_type = type_struct::live2d;
+#ifdef LOG_LOAD
+					buff_log.push_back(snos);
+					buff_log.push_back("Объект Live2d Model");
+#endif
+					break;
+				default:
+#ifdef LOG_LOAD
+					buff_log.push_back(snos);
+					buff_log.push_back("Неизвестный объект по байту " + to_string(file.tellg()));
+#endif
+
+					filed_exept();
+					return 1;
+
+					break;
+				}
+
+				if (Get_cur_bite() == 1)
+				{
+					filed_exept();
+					return 1;
+				}
+
+				if (cur_bite == 0x01)
+				{
+					cur_obj.my_inter = type_interactions::swich;
+#ifdef LOG_LOAD
+					buff_log.push_back(snos);
+					buff_log.push_back("Взаимодействие swich");
+#endif
+				}
+				else if (cur_bite == 0x02)
+				{
+					cur_obj.my_inter = type_interactions::action;
+#ifdef LOG_LOAD
+					buff_log.push_back(snos);
+					buff_log.push_back("Взаимодействие action");
+#endif
+				}
+				else
+				{
+#ifdef LOG_LOAD
+					buff_log.push_back(snos);
+					buff_log.push_back("Неизвестное взаимодействия по байту " + to_string(file.tellg()));
+#endif
+
+					filed_exept();
+					return 1;
+
+				}
+
+				int size_cur_type = 0;//размерность которая должна быть
+				switch (cur_obj.my_type)//здесь читаем какая она должна быть
+				{
+				case type_struct::scene:
+				{
+					switch (cur_obj.my_inter)
+					{
+					case type_interactions::swich:
+					{
+						size_cur_type = 6;
+						break;
+					}
+					case type_interactions::action:
+					{
+
+						size_cur_type = 4;
+						break;
+					}
+					default:
+						filed_exept();
+						return 1;
+						break;
+					}
+					break;
+				}
+				case type_struct::sprite:
+				{
+					switch (cur_obj.my_inter)
+					{
+					case type_interactions::swich:
+					{
+						size_cur_type = 9;
+						break;
+					}
+					case type_interactions::action:
+					{
+
+						size_cur_type = 5;
+						break;
+					}
+					default:
+						filed_exept();
+						return 1;
+						break;
+					}
+					break;
+				}
+				case type_struct::text:
+				{
+					switch (cur_obj.my_inter)
+					{
+					case type_interactions::swich:
+					{
+						size_cur_type = 5;
+						break;
+					}
+					case type_interactions::action:
+					{
+
+						size_cur_type = 4;
+						break;
+					}
+					default:
+						filed_exept();
+						return 1;
+						break;
+					}
+					break;
+				}
+				case type_struct::audio:
+				{
+					switch (cur_obj.my_inter)
+					{
+					case type_interactions::action:
+					{
+
+						size_cur_type = 5;
+						break;
+					}
+					default:
+						filed_exept();
+						return 1;
+						break;
+					}
+					break;
+				}
+				case type_struct::teleport:
+				{
+					switch (cur_obj.my_inter)
+					{
+					case type_interactions::swich:
+					{
+						size_cur_type = 5;//всегда байт ровно 5 (3 описания 2 номер страницы)
+						break;
+					}
+					case type_interactions::action://в смещениях на скрипт неизвестное количество байтов
+					{
+						size_cur_type = 4;//минимум байт 4 (3 описания 1 количество символов
+						break;
+					}
+					default:
+						filed_exept();
+						return 1;
+						break;
+					}
+					break;
+				}
+				case  type_struct::live2d:
+				{
+					switch (cur_obj.my_inter)
+					{
+					case type_interactions::swich:
+					{
+						size_cur_type = 40;//всегда байт ровно (3 описания, 1 имя, 1 текстура, 35 аргументы модели)
+						break;
+					}
+					case type_interactions::action://в смещениях на скрипт неизвестное количество байтов
+					{
+						size_cur_type = 6;//всегда байт ровно (3 описания, 1 имя, 1 тип действия, и 1 номер motion)
+						break;
+					}
+					default:
+						filed_exept();
+						return 1;
+						break;
+					}
+					break;
+				}
+				default:
+					filed_exept();
+					return 1;
+					break;
+				}
+				if (cur_obj.my_type == type_struct::teleport)//идет проверка хоть кокаято для текста и смещения
+				{
+					if (cur_obj.my_inter == type_interactions::action)
+					{
+						if (size_obj < size_cur_type)// должно быть минимальное количество байт для объекта
+						{
+#ifdef LOG_LOAD
+
+							buff_log.push_back(snos);
+							buff_log.push_back("Ошибка - нехватка байтов описания " + to_string(file.tellg()));
+#endif
+							filed_exept();
+							return 1;
+						}
+					}
+					else
+					{
+						if (size_obj != size_cur_type)
+						{
+#ifdef LOG_LOAD
+
+							buff_log.push_back(snos);
+							if (size_obj > size_cur_type)
+								buff_log.push_back("Ошибка - переполнение байтов описания " + to_string(file.tellg()));
+							else
+								buff_log.push_back("Ошибка - нехватка байтов описания " + to_string(file.tellg()));
+#endif
+							filed_exept();
+							return 1;
+						}
+					}
+				}
+				else
+				{
+					if (size_obj != size_cur_type)
+					{
+#ifdef LOG_LOAD
+
+						buff_log.push_back(snos);
+						if (size_obj > size_cur_type)
+							buff_log.push_back("Ошибка - переполнение байтов описания " + to_string(file.tellg()));
+						else
+							buff_log.push_back("Ошибка - нехватка байтов описания " + to_string(file.tellg()));
+#endif
+						filed_exept();
+						return 1;
+					}
+				}
+
+
+				_n += size_obj; //size_cur_type - поменял что прибовлять РАСПИСАТЬ - смещает байты для понимания когда закончится бокс, по правилу цикла
+								//для текста и смещения нужно будет добовлять побайтово вручную
+
+				switch (cur_obj.my_type)//здесь дозаполняем объектик после всех проверок
+				{
+				case type_struct::scene:
+				{
+					switch (cur_obj.my_inter)
+					{
+					case type_interactions::swich:
+					{
+						if (Get_cur_bite() == 1)
+						{
+							filed_exept();
+							return 1;
+						}
+						if (cur_bite == 0x01)
+						{
+							cur_obj.my_swich = SIMPLE;
+						}
+						else if (cur_bite == 0x02)
+						{
+							cur_obj.my_swich = NULL_TIME;
+						}
+						else
+						{
+#ifdef LOG_LOAD
+							buff_log.push_back(snos);
+							buff_log.push_back("Неизвестный тип свича по байту " + to_string(file.tellg()));
+							filed_exept();
+#endif
+							return 1;//неизвестный байт подтипа
+						}
+
+
+						if (Get_cur_bite() == 1)
+						{
+							filed_exept();
+							return 1;
+						}
+						if (cur_bite == 0x01)
+						{
+							cur_obj.data1 = "BG";
+						}
+						else if (cur_bite == 0x02)
+						{
+							cur_obj.data1 = "CG";
+						}
+						else
+						{
+#ifdef LOG_LOAD
+							buff_log.push_back(snos);
+							buff_log.push_back("Неизвестный тип дирректории по байту " + to_string(file.tellg()));
+							filed_exept();
+#endif
+							return 1;//неизвестный тип
+						}
+
+
+						if (Get_cur_bite() == 1)
+						{
+							filed_exept();
+							return 1;
+						}
+						cur_obj.data2 = std::to_string(static_cast<int>(cur_bite));//нужна проверка на предел картинок
+
+
+
+						break;
+					}
+					case type_interactions::action:
+					{
+						if (Get_cur_bite() == 1)
+						{
+							filed_exept();
+							return 1;
+						}
+						switch (cur_bite)
+						{
+						case 0x01:
+						{
+							cur_obj.my_action = type_action::SHAKE;
+							break;
+						}
+						case 0x02:
+						{
+							cur_obj.my_action = type_action::PUNCH;
+							break;
+						}
+						case 0x03:
+						{
+							cur_obj.my_action = type_action::BLACK_IN;
+							break;
+						}
+						case 0x04:
+						{
+							cur_obj.my_action = type_action::BLACK_OUT;
+							break;
+						}
+						case 0x05:
+						{
+							cur_obj.my_action = type_action::POLOS_OUT;
+							break;
+						}
+						case 0x06:
+						{
+							cur_obj.my_action = type_action::POLOS_OUT;
+							break;
+						}
+						case 0x07:
+						{
+							cur_obj.my_action = type_action::SLASH_WS_IN;
+							break;
+						}
+						case 0x08:
+						{
+							cur_obj.my_action = type_action::SLASH_WS_OUT;
+							break;
+						}
+						case 0x09:
+						{
+							cur_obj.my_action = type_action::SLASH_AD_IN;
+							break;
+						}
+						case 0x10:
+						{
+							cur_obj.my_action = type_action::SLASH_AD_OUT;
+							break;
+						}
+						case 0x11:
+						{
+							cur_obj.my_action = type_action::MBLACK_IN;
+							break;
+						}
+						case 0x12:
+						{
+							cur_obj.my_action = type_action::MBLACK_OUT;
+							break;
+						}
+						case 0x13:
+						{
+							cur_obj.my_action = type_action::MPOLOS_OUT;
+							break;
+						}
+						case 0x14:
+						{
+							cur_obj.my_action = type_action::MPOLOS_OUT;
+							break;
+						}
+						case 0x15:
+						{
+							cur_obj.my_action = type_action::MSLASH_WS_IN;
+							break;
+						}
+						case 0x16:
+						{
+							cur_obj.my_action = type_action::MSLASH_WS_OUT;
+							break;
+						}
+						case 0x17:
+						{
+							cur_obj.my_action = type_action::MSLASH_AD_IN;
+							break;
+						}
+						case 0x18:
+						{
+							cur_obj.my_action = type_action::MSLASH_AD_OUT;
+							break;
+						}
+						default:
+						{
+#ifdef LOG_LOAD
+							buff_log.push_back(snos);
+							buff_log.push_back("Неизвестный тип экшона по байту" + to_string(file.tellg()));
+#endif
+							filed_exept();
+							return 1;//неизвестный байт подтипа
+							break;
+						}
+						}
+
+
+
+						break;
+					}
+					default:
+						filed_exept();
+						return 1;
+						break;
+					}
+					break;
+				}
+				case type_struct::sprite:
+				{
+
+					auto Get_name_bite([&]() {//функция для определения имени
+						switch (cur_bite)
+						{
+						case 0x01:
+							cur_obj.my_name = any_enum::AY;
+#ifdef LOG_LOAD
+							buff_log.push_back(snos);
+							buff_log.push_back("Персонаж - AY " + cur_obj.data2);
+#endif
+							break;
+						case 0x02:
+							cur_obj.my_name = any_enum::KI;
+#ifdef LOG_LOAD
+							buff_log.push_back(snos);
+							buff_log.push_back("Персонаж - KI " + cur_obj.data2);
+#endif
+							break;
+						case 0x03:
+							cur_obj.my_name = any_enum::DA;
+#ifdef LOG_LOAD
+							buff_log.push_back(snos);
+							buff_log.push_back("Персонаж - DA " + cur_obj.data2);
+#endif
+							break;
+						case 0x04:
+							cur_obj.my_name = any_enum::AK;
+#ifdef LOG_LOAD
+							buff_log.push_back(snos);
+							buff_log.push_back("Персонаж - AK " + cur_obj.data2);
+#endif
+							break;
+						case 0x05:
+							cur_obj.my_name = any_enum::KA;
+#ifdef LOG_LOAD
+							buff_log.push_back(snos);
+							buff_log.push_back("Персонаж - KA " + cur_obj.data2);
+#endif
+							break;
+						case 0x06:
+							cur_obj.my_name = any_enum::KU;
+#ifdef LOG_LOAD
+							buff_log.push_back(snos);
+							buff_log.push_back("Персонаж - KU " + cur_obj.data2);
+#endif
+							break;
+						case 0x07:
+							cur_obj.my_name = any_enum::MA;
+#ifdef LOG_LOAD
+							buff_log.push_back(snos);
+							buff_log.push_back("Персонаж - MA " + cur_obj.data2);
+#endif
+							break;
+						case 0x08:
+							cur_obj.my_name = any_enum::RO;
+#ifdef LOG_LOAD
+							buff_log.push_back(snos);
+							buff_log.push_back("Персонаж - RO " + cur_obj.data2);
+#endif
+							break;
+						case 0x09:
+							cur_obj.my_name = any_enum::SA;
+#ifdef LOG_LOAD
+							buff_log.push_back(snos);
+							buff_log.push_back("Персонаж - SA " + cur_obj.data2);
+#endif
+							break;
+						case 0x10:
+							cur_obj.my_name = any_enum::SE;
+#ifdef LOG_LOAD
+							buff_log.push_back(snos);
+							buff_log.push_back("Персонаж - SE " + cur_obj.data2);
+#endif
+							break;
+						case 0x11:
+							cur_obj.my_name = any_enum::YO;
+#ifdef LOG_LOAD
+							buff_log.push_back(snos);
+							buff_log.push_back("Персонаж - YO " + cur_obj.data2);
+#endif
+							break;
+						default:
+#ifdef LOG_LOAD
+							buff_log.push_back(snos);
+							buff_log.push_back("Неизвестный тип персонажа по байту " + to_string(file.tellg()));
+#endif
+							filed_exept();
+							return 1;
+							break;
+						}
+						return 0;
+					});
+					switch (cur_obj.my_inter)
+					{
+					case type_interactions::swich:
+					{
+						if (Get_cur_bite() == 1)
+						{
+							filed_exept();
+							return 1;
+						}
+
+						if (Get_name_bite() == 1)// имя спрайта как цифра
+						{
+							filed_exept();
+							return 1;
+						}
+
+
+
+						if (Get_cur_bite() == 1)
+						{
+							filed_exept();
+							return 1;
+						}
+
+						switch (cur_bite)
+						{
+						case 0x01:
+						{
+							cur_obj.data1 = "C";
+							break;
+						}
+						case  0x02:
+						{
+							cur_obj.data1 = "L";
+							break;
+						}
+						case  0x03:
+						{
+							cur_obj.data1 = "R";
+							break;
+						}
+						case 0x11:
+						{
+							cur_obj.data1 = "C_COSP";
+							break;
+						}
+						case 0x12:
+						{
+							cur_obj.data1 = "L_COSP";
+							break;
+						}
+						case 0x13:
+						{
+							cur_obj.data1 = "R_COSP";
+							break;
+						}
+						case 0x21:
+						{
+							cur_obj.data1 = "C_OLD";
+							break;
+						}
+						case  0x22:
+						{
+							cur_obj.data1 = "L_OLD";
+							break;
+						}
+						case 0x23:
+						{
+							cur_obj.data1 = "R_OLD";
+							break;
+						}
+						case 0x88:
+						{
+							cur_obj.hide = true;
+							break;
+						}
+						default:
+#ifdef LOG_LOAD
+							buff_log.push_back(snos);
+							buff_log.push_back("Неизвестный тип текстуры спрайта по байту " + to_string(file.tellg()));
+#endif
+							filed_exept();
+							return 1;
+							break;
+						}
+
+						if (cur_obj.hide == false)
+						{
+#ifdef LOG_LOAD
+							buff_log.push_back(snos);
+							buff_log.push_back("Появляется");
+							buff_log.push_back(snos);
+							buff_log.push_back("Тип текстуры " + cur_obj.data1);
+#endif
+							if (Get_cur_bite() == 1)
+							{
+								filed_exept();
+								return 1;
+							}
+
+							if (cur_bite > 0x03 || cur_bite < 0x01)
+							{
+#ifdef LOG_LOAD
+								buff_log.push_back(snos);
+								buff_log.push_back("Неизвестный номер текстуры по байту " + to_string(file.tellg()));
+#endif
+								filed_exept();
+								return 1;//нет такой текстуры																				 
+							}
+
+
+							cur_obj.data2 = std::to_string(int(cur_bite)); //номер текстурки этого типа 
+#ifdef LOG_LOAD
+							buff_log.push_back(" Текстура " + cur_obj.data2);
+#endif
+
+
+							if (Get_cur_bite() == 1)
+							{
+								filed_exept();
+								return 1;
+							}
+							cur_obj.data3 = std::to_string(int(cur_bite)); //номер эмоции типа
+#ifdef LOG_LOAD
+							buff_log.push_back(" Эмоция " + cur_obj.data3);
+#endif
+							if (cur_bite > 0x14 || cur_bite < 0x01)
+							{
+#ifdef LOG_LOAD
+								buff_log.push_back(snos);
+								buff_log.push_back(" Неизвестная эмоция по байту " + to_string(file.tellg()));
+#endif
+								filed_exept();
+								return 1;//нет такой текстуры
+							}
+
+							if (Get_cur_bite() == 1)
+							{
+								filed_exept();
+								return 1;
+							}
+
+							switch (cur_bite)
+							{
+							case 0x01:
+								cur_obj.my_position = any_enum::left;
+#ifdef LOG_LOAD
+								buff_log.push_back(snos);
+								buff_log.push_back("Позиция left");
+#endif
+								break;
+							case 0x02:
+								cur_obj.my_position = any_enum::left_centr;
+#ifdef LOG_LOAD
+								buff_log.push_back(snos);
+								buff_log.push_back("Позиция left_centr");
+#endif
+								break;
+							case 0x03:
+								cur_obj.my_position = any_enum::centr;
+#ifdef LOG_LOAD
+								buff_log.push_back(snos);
+								buff_log.push_back("Позиция centr");
+#endif
+								break;
+							case 0x04:
+								cur_obj.my_position = any_enum::right_centr;
+#ifdef LOG_LOAD
+								buff_log.push_back(snos);
+								buff_log.push_back("Позиция right_centr");
+#endif
+								break;
+							case 0x05:
+								cur_obj.my_position = any_enum::right;
+#ifdef LOG_LOAD
+								buff_log.push_back(snos);
+								buff_log.push_back("Позиция right");
+#endif
+								break;
+							default:
+#ifdef LOG_LOAD
+								buff_log.push_back(snos);
+								buff_log.push_back("Неизвестная позиция по байту " + to_string(file.tellg()));
+#endif
+								filed_exept();
+								return 1;
+								break;
+							}
+
+							if (Get_cur_bite() == 1)
+							{
+								filed_exept();
+								return 1;
+							}
+
+							switch (cur_bite)//его свич
+							{//LTR, RTL, SIMPLE, NULL_TIME
+							case 0x01:
+								cur_obj.my_swich = SIMPLE;
+								break;
+							case 0x02:
+								cur_obj.my_swich = LTR;
+								break;
+							case 0x03:
+								cur_obj.my_swich = RTL;
+								break;
+							case 0x04:
+								cur_obj.my_swich = NULL_TIME;
+								break;
+							case 0x05:
+								cur_obj.my_swich = DTT;
+								break;
+							default:
+#ifdef LOG_LOAD
+								buff_log.push_back(snos);
+								buff_log.push_back("Неизвестный тип свича по байту " + to_string(file.tellg()));
+#endif
+								filed_exept();
+								return 1;
+								break;
+							}
+						}
+						else
+						{
+#ifdef LOG_LOAD
+							buff_log.push_back(snos);
+							buff_log.push_back("Пропадает");
+#endif
+							//пропуск пустых байтов - ибо спрайт пропадает
+							if (Get_cur_bite() == 1)
+							{
+								filed_exept();
+								return 1;
+							}
+							if (Get_cur_bite() == 1)
+							{
+								filed_exept();
+								return 1;
+							}
+							if (Get_cur_bite() == 1)
+							{
+								filed_exept();
+								return 1;
+							}
+							if (Get_cur_bite() == 1)
+							{
+								filed_exept();
+								return 1;
+							}
+							if (Get_cur_bite() == 1)
+							{
+								filed_exept();
+								return 1;
+							}
+
+							switch (cur_bite)//его свич
+							{//LTR, RTL, SIMPLE, NULL_TIME
+							case 0x01:
+								cur_obj.my_swich = SIMPLE;
+								break;
+							case 0x02:
+								cur_obj.my_swich = LTR;
+								break;
+							case 0x03:
+								cur_obj.my_swich = RTL;
+								break;
+							case 0x04:
+								cur_obj.my_swich = NULL_TIME;
+								break;
+							case 0x05:
+								cur_obj.my_swich = DTT;
+								break;
+							default:
+#ifdef LOG_LOAD
+								buff_log.push_back(snos);
+								buff_log.push_back("Неизвестный тип свича по байту " + to_string(file.tellg()));
+#endif
+								filed_exept();
+								return 1;
+								break;
+							}
+
+						}
+
+
+						break;
+					}
+					case type_interactions::action:
+					{
+						if (Get_cur_bite() == 1)
+						{
+							filed_exept();
+							return 1;
+						}
+						if (Get_name_bite() == 1)// имя спрайта как цифра
+						{
+							filed_exept();
+							return 1;
+						}
+
+						if (Get_cur_bite() == 1)
+						{
+							filed_exept();
+							return 1;
+						}
+						switch (cur_bite)//байт подтипа взаимодействия
+						{
+						case 0x01:
+							cur_obj.my_action = MINIJUMP;
+							break;
+						case 0x02:
+							cur_obj.my_action = JUMP;
+							break;
+						case 0x03:
+							cur_obj.my_action = scale_lit;
+							break;
+						case 0x04:
+							cur_obj.my_action = scale_mid;
+							break;
+						case 0x05:
+							cur_obj.my_action = scale_big;
+							break;
+						case 0x06:
+							cur_obj.my_action = POS_C;
+							break;
+						case 0x07:
+							cur_obj.my_action = POS_R;
+							break;
+						case 0x08:
+							cur_obj.my_action = POS_RC;
+							break;
+						case 0x09:
+							cur_obj.my_action = POS_L;
+							break;
+						case 0x10:
+							cur_obj.my_action = POS_LC;
+							break;
+						default:
+							filed_exept();
+							return 1;
+							break;
+						}
+
+						break;
+					}
+					default:
+						filed_exept();
+						return 1;
+						break;
+					}
+					break;
+				}
+				case type_struct::text:
+				{
+					switch (cur_obj.my_inter)
+					{
+					case type_interactions::swich://ПОКА НЕ ПРОВЕРЕНЫЙ ВАРИАНТ ВЗЯТИЯ ТЕКСТА ИЗ СКРИПТА
+					{
+						if (Get_cur_bite() == 1)
+						{
+							filed_exept();
+							return 1;
+						}
+						int size_name = cur_bite;
+						for (int n = 1; n < size_name; n++)
+						{
+							if (Get_cur_bite() == 1)
+							{
+								filed_exept();
+								return 1;
+							}
+							cur_obj.data1 += cur_bite;
+						}
+
+						if (Get_cur_bite() == 1)
+						{
+							filed_exept();
+							return 1;
+						}
+						int size_text = cur_bite;
+						for (int n = 1; n < size_text; n++)
+						{
+							if (Get_cur_bite() == 1)
+							{
+								filed_exept();
+								return 1;
+							}
+							cur_obj.data2 += cur_bite;
+						}
+
+						break;
+					}
+					case type_interactions::action:
+					{
+						if (Get_cur_bite() == 1)
+						{
+							filed_exept();
+							return 1;
+						}
+						if (cur_bite == 0x01)
+						{
+							cur_obj.my_action = SHOW_BOX;
+						}
+						else if (cur_bite == 0x02)
+						{
+							cur_obj.my_action = HIDE_BOX;
+						}
+
+						else
+						{
+							filed_exept();
+							return 1;
+						}
+
+						break;
+					}
+					default:
+						filed_exept();
+						return 1;
+						break;
+					}
+					break;
+				}
+				case type_struct::audio:
+				{
+					switch (cur_obj.my_inter)
+					{
+					case type_interactions::action:
+					{
+						if (Get_cur_bite() == 1)
+						{
+							filed_exept();
+							return 1;
+						}
+						cur_obj.data1 = to_string(int(cur_bite) - 1);//байт подтипа объекта НЕТ ПРОВЕРКИ
+
+
+						if (Get_cur_bite() == 1)
+						{
+							filed_exept();
+							return 1;
+						}
+						cur_obj.data2 = to_string(int(cur_bite) - 1);//байт номера аудишки НЕТ ПРОВЕРКИ																			 
+						break;
+					}
+					default:
+					{
+						filed_exept();
+						return 1;
+					}
+					break;
+					}
+					break;
+				}
+				case type_struct::teleport://обработчик для телепорта един
+				{
+					switch (cur_obj.my_inter)
+					{
+					case type_interactions::swich:// у свича (свич это смещение на страницу) выделено 2 байта на описание номера странички
+					{
+						if (Get_cur_bite() == 1)
+						{
+							filed_exept();
+							return 1;
+						}
+						int size_buff = int(cur_bite) * 255;
+						if (Get_cur_bite() == 1)
+						{
+							filed_exept();
+							return 1;
+						}
+						size_buff += int(cur_bite);
+
+						cur_obj.data1 = std::to_string(size_buff);
+
+
+						break;
+					}
+					case type_interactions::action:
+					{
+						if (Get_cur_bite() == 1)
+						{
+							filed_exept();
+							return 1;
+						}
+						int size_buff = int(cur_bite);
+
+						for (int z = 0; z < size_buff; z++)
+						{
+							if (Get_cur_bite() == 1)
+							{
+								filed_exept();
+								return 1;
+							}
+							cur_obj.data1 += cur_bite;
+						}
+
+						break;
+					}
+					default:
+					{
+						filed_exept();
+						return 1;
+						break;
+					}
+					}
+					break;
+				}
+				case type_struct::live2d:
+				{
+					if (Get_cur_bite() == 1)
+					{
+						filed_exept();
+						return 1;
+					}
+
+					switch (cur_bite)// имя спрайта как цифра
+					{
+					case 0x01:
+						cur_obj.my_name = any_enum::AY;
+						break;
+					case 0x02:
+						cur_obj.my_name = any_enum::KI;
+						break;
+					case 0x05:
+						cur_obj.my_name = any_enum::KA;
+						break;
+					case 0x06:
+						cur_obj.my_name = any_enum::KU;
+						break;
+					case 0x07:
+						cur_obj.my_name = any_enum::MA;
+						break;
+					case 0x09:
+						cur_obj.my_name = any_enum::SA;
+						break;
+					default:
+						filed_exept();
+						return 1;
+						break;
+					}
+
+					switch (cur_obj.my_inter)
+					{
+					case type_interactions::swich:// у свича (свич это смещение на страницу) выделено 2 байта на описание номера странички
+					{
+
+						if (Get_cur_bite() == 1)
+						{
+							filed_exept();
+							return 1;
+						}
+
+						cur_obj.data1 = int(cur_bite);
+						if (is_int(cur_obj.data1) == false)
+						{
+							filed_exept();
+							return 1;
+						}
+
+						for (int z = 0; z < any_enum::size_agr_model-1; z++)
+						{
+							if (Get_cur_bite() == 1)
+							{
+								filed_exept();
+								return 1;
+							}
+							cur_obj.data3 += int(cur_bite);
+						}
+
+						break;
+					}
+					case type_interactions::action:
+					{
+						if (Get_cur_bite() == 1)
+						{
+							filed_exept();
+							return 1;
+						}
+						
+
+						switch (cur_bite)
+						{
+						case 0x01:
+						{
+							cur_obj.my_action = type_action::scale_lit;
+							break;
+						}
+						case 0x02:
+						{
+							cur_obj.my_action = type_action::scale_mid;
+							break;
+						}
+						case 0x03:
+						{
+							cur_obj.my_action = type_action::scale_big;
+							break;
+						}
+						case 0x04:
+						{
+							cur_obj.my_action = type_action::LIVE2D_MOTION;
+							break;
+						}
+						default:
+							filed_exept();
+							return 1;
+							break;
+						}
+
+						if (Get_cur_bite() == 1)
+						{
+							filed_exept();
+							return 1;
+						}
+
+						cur_obj.data1 = int(cur_bite);
+
+						if (is_int(cur_obj.data1) == false)
+						{
+							filed_exept();
+							return 1;
+						}
+
+						break;
+					}
+					default:
+					{
+						filed_exept();
+						return 1;
+						break;
+					}
+					}
+
+					break;
+				}
+				default:
+					filed_exept();
+					return 1;
+					break;
+				}
+
+
+				cur_load_page.intedex_data[cur_load_page.cur_box_count][cur_load_page.cur_row_count[cur_load_page.cur_box_count]] = cur_obj;
+				cur_load_page.visable_id_button[cur_load_page.cur_box_count][cur_load_page.cur_row_count[cur_load_page.cur_box_count]] = true;//не уверен что работает правильно
+				cur_load_page.cur_row_count[cur_load_page.cur_box_count]++;
+			}
+			cur_load_page.cur_box_count++;
+		}
+
+		cur_load_page.visable_id_box[0] = cur_load_page.cur_box_count > 0 ? true : false;
+		cur_load_page.visable_id_box[1] = cur_load_page.cur_box_count > 1 ? true : false;
+		cur_load_page.visable_id_box[2] = cur_load_page.cur_box_count > 2 ? true : false;
+
+
+
+
+		cur_page_data[cur_page_count] = new page_obj(cur_load_page);
+		cur_page_count++;
+
+	}
+#ifdef LOG_LOAD
+	if (buff_log.size() == 0)
+	{
+		filed_exept();
+		return 1;
+	}
+	buff_log.push_back(string({ 0x0A }) + string({ 0x0D }));
+	buff_log.push_back("Успешно");
+	for (int _n = 0; _n < buff_log.size(); _n++)
+	{
+		log << buff_log[_n];
+	}
+#endif
+	return 0;
+}
